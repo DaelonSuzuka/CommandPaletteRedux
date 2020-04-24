@@ -33,6 +33,10 @@
 
 Either download it from the official Godot AssetLib (within Godot itself) or download the addons folder from here and move it to the root (res://) of your project. Enable the plugin in the project settings.
 
+**Usage**:
+
+* Install via instructions above
+* On Windows / Linux press "Ctrl+P" to open, on Mac press "Cmd+P"
 
 **Preview**
 
