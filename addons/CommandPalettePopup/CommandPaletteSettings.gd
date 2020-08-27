@@ -7,8 +7,8 @@ onready var include_help_pages_button = $MarginContainer/VBoxContainer/SettingsV
 onready var adaptive_height_button = $MarginContainer/VBoxContainer/SettingsVB/AdaptiveHeight
 onready var show_path_for_recent_button = $MarginContainer/VBoxContainer/SettingsVB/ShowPathForRecentFiles
 onready var keyboard_shortcut_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeyboardShortcut/LineEdit
-onready var width_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/WindowWidth/LineEdit
-onready var max_height_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/WindowMaxHeight/LineEdit
+onready var width_SpinBox = $MarginContainer/VBoxContainer/SettingsVB/WindowWidth/SpinBox
+onready var max_height_SpinBox = $MarginContainer/VBoxContainer/SettingsVB/WindowMaxHeight/SpinBox
 onready var keyword_goto_line_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordGotoLine/LineEdit
 onready var keyword_goto_method_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordGotoMethod/LineEdit
 onready var keyword_all_files_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordAllFiles/LineEdit
@@ -21,19 +21,47 @@ onready var keyword_set_inspector_LineEdit = $MarginContainer/VBoxContainer/Sett
 onready var keyword_folder_tree_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordFileTree/LineEdit
 onready var keyword_texteditor_plugin_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordTexteditorPlugin/LineEdit
 onready var keyword_todo_plugin_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordTODOPlugin/LineEdit
+onready var cancel_button := $MarginContainer/VBoxContainer/ButtonsHB/CancelButton
+onready var save_button := $MarginContainer/VBoxContainer/ButtonsHB/SaveButton
+onready var defaults_button := $MarginContainer/VBoxContainer/ButtonsHB/DefaultsButton
+onready var shortcut_edit_button := $MarginContainer/VBoxContainer/SettingsVB/KeyboardShortcut/EditButton
+onready var shortcut_file_dialog := $EnterShortcutPopup
+onready var shortcut_dialog_label := $EnterShortcutPopup/MarginContainer/ShortcutLabel
 
 
 func _ready() -> void:
 	load_settings()
+	save_button.icon = get_icon("Save", "EditorIcons")
+	cancel_button.icon = get_icon("Close", "EditorIcons")
+	defaults_button.icon = get_icon("Reload", "EditorIcons")
+	shortcut_edit_button.icon = get_icon("Edit", "EditorIcons")
+	shortcut_file_dialog.connect("hide", self, "_on_EnterShortcutPopup_popup_hide") # connection via GUI didn't work
+	shortcut_file_dialog.connect("modal_closed", self, "_on_EnterShortcutPopup_popup_hide") # connection via GUI didn't work
 
 
 func _unhandled_key_input(event: InputEventKey) -> void:
 	if visible:
+		if event.scancode == KEY_ESCAPE and event.pressed:
+			if not cancel_button.has_focus():
+				cancel_button.grab_focus()
+			else:
+				hide()
+		
+		# Settings page: recording keyboard input on release for shortcut setting.
+		elif shortcut_file_dialog.visible and not event.pressed:
+			keyboard_shortcut_LineEdit.text = event.as_text()
+			shortcut_file_dialog.hide()
+		
 		get_tree().set_input_as_handled()
+
+
+func _on_CommandPaletteSettings_about_to_show() -> void:
+	hide_script_panel_button.call_deferred("grab_focus")
 
 
 func _on_SaveButton_pressed() -> void:
 	save_settings()
+	owner._update_popup_list()
 	hide()
 
 
@@ -41,9 +69,28 @@ func _on_DefaultsButton_pressed() -> void:
 	load_default_settings()
 
 
+func _on_CancelButton_pressed() -> void:
+	hide()
+
+
 func _on_CommandPaletteSettings_popup_hide() -> void:
 	load_settings()
 	get_parent().filter.grab_focus()
+
+
+func _on_ShotcutEditButton_pressed() -> void: # shortcut editor button
+	if shortcut_edit_button.icon == get_icon("Edit", "EditorIcons"):
+		shortcut_edit_button.set_deferred("icon", get_icon("DebugSkipBreakpointsOff", "EditorIcons"))
+		var size = Vector2(300, 100)
+		shortcut_file_dialog.rect_size = size
+		shortcut_file_dialog.rect_global_position = OS.get_screen_size() / 2 - size / 2
+		get_focus_owner().release_focus()
+		shortcut_file_dialog.call_deferred("show_modal")
+
+
+func _on_EnterShortcutPopup_popup_hide() -> void: 
+	shortcut_edit_button.icon = get_icon("Edit", "EditorIcons")
+	shortcut_edit_button.grab_focus()
 
 
 func load_settings() -> void:
@@ -55,8 +102,8 @@ func load_settings() -> void:
 		save_settings()
 	
 	elif error == OK:
-		width_LineEdit.text = config.get_value("Settings", "width") as String
-		max_height_LineEdit.text = config.get_value("Settings", "max_height") as String
+		width_SpinBox.value = config.get_value("Settings", "width") as int
+		max_height_SpinBox.value = config.get_value("Settings", "max_height") as int
 		keyboard_shortcut_LineEdit.text = config.get_value("Settings", "keyboard_shortcut")
 		keyword_goto_line_LineEdit.text = config.get_value("Settings", "goto_line")
 		keyword_goto_method_LineEdit.text = config.get_value("Settings", "goto_method")
@@ -77,10 +124,9 @@ func load_settings() -> void:
 
 
 func load_default_settings() -> void:
-	var screen_factor = max(OS.get_screen_dpi() / 100, 1)
-	width_LineEdit.text = clamp(1500 * screen_factor, 0, OS.get_screen_size().x * 0.75) as String
-	max_height_LineEdit.text = clamp(OS.get_screen_size().y / 2 + 200 * screen_factor, 0, OS.get_screen_size().y * 0.75) as String
-	keyboard_shortcut_LineEdit.text = "Command+P" if OS.get_name() == "OSX" else "Control+P"
+	width_SpinBox.value = clamp(1000, 0, OS.get_screen_size().x * 0.9) as int
+	max_height_SpinBox.value = clamp(OS.get_screen_size().y / 2 + 200, 0, OS.get_screen_size().y * 0.9) as int
+	keyboard_shortcut_LineEdit.text = "Command+P" if OS.get_name() == "OSX" else "Control+E"
 	keyword_goto_line_LineEdit.text = "g "
 	keyword_goto_method_LineEdit.text = "m "
 	keyword_all_files_LineEdit.text = "a "
@@ -101,8 +147,8 @@ func load_default_settings() -> void:
 
 func save_settings() -> void:
 	var config = ConfigFile.new()
-	config.set_value("Settings", "width", width_LineEdit.text)
-	config.set_value("Settings", "max_height", max_height_LineEdit.text)
+	config.set_value("Settings", "width", width_SpinBox.value)
+	config.set_value("Settings", "max_height", max_height_SpinBox.value)
 	config.set_value("Settings", "keyboard_shortcut", keyboard_shortcut_LineEdit.text)
 	config.set_value("Settings", "goto_line", keyword_goto_line_LineEdit.text)
 	config.set_value("Settings", "goto_method", keyword_goto_method_LineEdit.text)

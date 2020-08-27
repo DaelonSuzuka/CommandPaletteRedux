@@ -28,7 +28,6 @@ var scripts : Dictionary # holds all scripts; [file_path] = {icon, resource}
 var other_files : Dictionary # holds all other files; [file] = {icon}
 var folders : Dictionary # holds all folders [folder_path] = {folder count, file count, folder name, parent name}
 var secondary_color : Color = Color(1, 1, 1, .3) # color for 3rd column in ItemList (file paths, additional_info...)
-var screen_factor = max(OS.get_screen_dpi() / 100, 1)
 var current_main_screen : String = ""
 var script_panel_visible : bool # only updated on context button press
 var old_dock_tab : Control # holds the old tab when switching dock for context menu
@@ -67,10 +66,12 @@ func _ready() -> void:
 
 
 func _unhandled_key_input(event: InputEventKey) -> void:
-	if event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text and event.pressed and visible and not filter.text and filter.has_focus():
+	var pressed = true if palette_settings.keyboard_shortcut_LineEdit.text.findn("Tab") != -1 else event.pressed # if keyboard shortcut contains tab, you cannot check pressed state
+	
+	if event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text and pressed and visible and not filter.text and filter.has_focus():
 		_switch_to_recent_file()
 	
-	elif event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text and event.pressed:
+	elif event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text and pressed:
 		_update_project_settings()
 		_update_popup_list(true)
 
@@ -185,7 +186,7 @@ func _on_AddButton_pressed() -> void:
 
 
 func _on_SettingsButton_pressed() -> void:
-	palette_settings.popup_centered(Vector2(1000, 600) * screen_factor)
+	palette_settings.popup_centered(Vector2(1000, 700))
 
 
 func _on_ContextButton_pressed() -> void:
@@ -201,13 +202,13 @@ func _on_ContextButton_pressed() -> void:
 			
 			yield(get_tree().create_timer(.01), "timeout")
 			var selected_name = item_list.get_item_text(selection[0])
-			var pos = Vector2(15, 5) * screen_factor
+			var pos = Vector2(15, 5)
 			while selected_name != SCRIPT_LIST.get_item_text(SCRIPT_LIST.get_item_at_position(pos)):
-				pos.y += 5 * screen_factor
+				pos.y += 5
 				if pos.y > OS.get_screen_size().y:
 					push_warning("Command Palette Plugin: Error getting context menu from script list.")
 					return
-			pos.y += 5 * screen_factor
+			pos.y += 5
 			hide()
 			var simul_rmb = InputEventMouseButton.new()
 			simul_rmb.button_index = BUTTON_RIGHT
@@ -245,7 +246,7 @@ func _on_ContextButton_pressed() -> void:
 			sel.clear()
 			var node_path = item_list.get_item_text(selection[0] - 1) + selected_name if item_list.get_item_text(selection[0] - 1).begins_with("./") else "."
 			sel.add_node(INTERFACE.get_edited_scene_root().get_node(node_path))
-			var pos = Vector2(30, 5) * screen_factor # x = 30 so we don't click the folding arrow
+			var pos = Vector2(30, 5) # x = 30 so we don't click the folding arrow
 			yield(get_tree().create_timer(.01), "timeout")
 			while selected_name != scene_tree.get_item_at_position(pos).get_text(0):
 				pos.x = 5
@@ -253,7 +254,7 @@ func _on_ContextButton_pressed() -> void:
 				if pos.y > OS.get_screen_size().y:
 					push_warning("Command Palette Plugin: Error getting context menu from SceneTreeDock.")
 					return
-			pos.y += 5 * screen_factor
+			pos.y += 5
 			hide()
 			var simul_rmb = InputEventMouseButton.new()
 			simul_rmb.button_index = BUTTON_RIGHT
@@ -263,7 +264,7 @@ func _on_ContextButton_pressed() -> void:
 			for child in scene_tree_dock.get_children():
 				if child is PopupMenu:
 					child.allow_search = true
-					child.call_deferred("set_position", scene_tree.rect_global_position + Vector2(0, pos.y + 25 * screen_factor))
+					child.call_deferred("set_position", scene_tree.rect_global_position + Vector2(0, pos.y + 25))
 					if not child.is_connected("popup_hide", self, "_on_node_and_file_context_menu_hide"):
 						child.connect("popup_hide", self, "_on_node_and_file_context_menu_hide")
 					break
@@ -305,7 +306,7 @@ func _on_ContextButton_pressed() -> void:
 				filesystem_dock.get_parent().get_parent().show()
 				filesystem_dock.get_parent().get_parent().get_parent().show()
 			yield(get_tree().create_timer(.01), "timeout")
-			var pos = Vector2(30, 5) * screen_factor # x = 30 so we don't click the folding arrow
+			var pos = Vector2(30, 5) # x = 30 so we don't click the folding arrow
 			if (file_split_view and current_filter != FILTER.TREE_FOLDER) or (current_filter == FILTER.TREE_FOLDER and not item_list.get_item_icon(selection[0])): # icon => folder
 				while path.get_file() != file_list.get_item_text(file_list.get_item_at_position(pos)):
 					pos.x = 5
@@ -313,7 +314,7 @@ func _on_ContextButton_pressed() -> void:
 					if pos.y > OS.get_screen_size().y:
 						push_warning("Command Palette Plugin: Error getting context menu from FileSystemDock.")
 						return
-				pos.y += 5 * screen_factor
+				pos.y += 5
 				hide()
 				file_list.emit_signal("item_rmb_selected", file_list.get_selected_items()[0], pos)
 			
@@ -324,7 +325,7 @@ func _on_ContextButton_pressed() -> void:
 					if pos.y > OS.get_screen_size().y:
 						push_warning("Command Palette Plugin: Error getting context menu from FileSystemDock.")
 						return
-				pos.y += 5 * screen_factor
+				pos.y += 5
 				hide()
 				file_tree.emit_signal("item_rmb_selected", pos)
 			
@@ -333,7 +334,7 @@ func _on_ContextButton_pressed() -> void:
 					child.allow_search = true
 					child.call_deferred("set_position", (file_list.rect_global_position if (file_split_view and current_filter != FILTER.TREE_FOLDER) or \
 							(current_filter == FILTER.TREE_FOLDER and not item_list.get_item_icon(selection[0])) else \
-							file_tree.rect_global_position) + Vector2(0, pos.y + 25 * screen_factor))
+							file_tree.rect_global_position) + Vector2(0, pos.y + 25))
 					if not child.is_connected("popup_hide", self, "_on_node_and_file_context_menu_hide"):
 						child.connect("popup_hide", self, "_on_node_and_file_context_menu_hide")
 					break
@@ -655,11 +656,11 @@ func _open_other_file(path : String) -> void:
 
 func _update_popup_list(just_popupped : bool = false) -> void:
 	if just_popupped:
-		rect_size = Vector2(palette_settings.width_LineEdit.text as float, palette_settings.max_height_LineEdit.text as float)
+		rect_size = Vector2(palette_settings.width_SpinBox.value as float, palette_settings.max_height_SpinBox.value as float)
 		popup_centered()
 		filter.grab_focus()
 		script_added_to = null
-
+	
 	item_list.clear()
 	var search_string : String = filter.text
 	
@@ -779,12 +780,13 @@ func _update_popup_list(just_popupped : bool = false) -> void:
 		item_list.select(quickselect_line * item_list.max_columns + (1 if current_filter in [FILTER.ALL_OPEN_SCENES, FILTER.ALL_OPEN_SCRIPTS, FILTER.FILEEDITOR, \
 				FILTER.GOTO_METHOD, FILTER.TREE_FOLDER] else 2))
 		item_list.ensure_current_is_visible()
+	
 	_adapt_list_height()
 	_setup_buttons()
 
 
 func _build_help_page() -> void:
-	rect_size = Vector2(palette_settings.width_LineEdit.text as float, palette_settings.max_height_LineEdit.text as float)
+	rect_size = Vector2(palette_settings.width_SpinBox.value as float, palette_settings.max_height_SpinBox.value as float)
 	var file = File.new()
 	file.open("res://addons/CommandPalettePopup/Help.txt", File.READ)
 	info_box.bbcode_text = file.get_as_text() % [palette_settings.keyword_all_open_scenes_LineEdit.text, palette_settings.keyword_all_files_LineEdit.text, \
@@ -1097,14 +1099,14 @@ func _build_folder_view(search_string : String) -> void:
 func _adapt_list_height() -> void:
 	if palette_settings.adaptive_height_button.pressed:
 		var script_icon = get_icon("Script", "EditorIcons")
-		var row_height = script_icon.get_size().y + (8 * screen_factor)
+		var row_height = script_icon.get_size().y + (8)
 		var rows = max(item_list.get_item_count() / item_list.max_columns, 1) + 1
 		var margin = filter.rect_size.y + $PaletteMarginContainer.margin_top + abs($PaletteMarginContainer.margin_bottom) \
 				+ $PaletteMarginContainer/VBoxContainer/MarginContainer.get("custom_constants/margin_top") \
 				+ $PaletteMarginContainer/VBoxContainer/MarginContainer.get("custom_constants/margin_bottom") \
 				+ max(current_label.rect_size.y, last_label.rect_size.y)
 		var height = row_height * rows + margin
-		rect_size.y = clamp(height, 0, Vector2(palette_settings.width_LineEdit.text as float, palette_settings.max_height_LineEdit.text as float).y)
+		rect_size.y = clamp(height, 0, palette_settings.max_height_SpinBox.value as float)
 
 
 func _setup_buttons() -> void:

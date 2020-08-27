@@ -9,8 +9,6 @@ onready var hint = $MarginContainer/VBoxContainer/HintHintStringHB/OptionButton
 onready var hint_string = $MarginContainer/VBoxContainer/HintHintStringHB/HintStringLineEdit
 onready var info_label = $MarginContainer/VBoxContainer/InfoLabel
 onready var prediction_list = $PredictionList
-	
-var screen_factor = max(OS.get_screen_dpi() / 100, 1)
 
 
 func _ready() -> void:
@@ -27,7 +25,7 @@ func _unhandled_key_input(event: InputEventKey) -> void:
 func _show() -> void:
 	_update_hints()
 	prediction_list.hide()
-	popup_centered(Vector2(750, 350) * screen_factor)
+	popup_centered(Vector2(750, 350))
 
 
 func _on_AddSetting_about_to_show() -> void:
@@ -88,7 +86,7 @@ func _predict_path() -> void:
 				max_length = prediction.length()
 			prediction_list.show()
 			prediction_list.rect_global_position = Vector2(path.rect_global_position.x + path.text.length() * 8, path.rect_global_position.y + path.rect_size.y)
-			prediction_list.set_deferred("rect_size", Vector2(max_length * 10, prediction_list.get_item_count() * 15) * screen_factor)
+			prediction_list.set_deferred("rect_size", Vector2(max_length * 10, prediction_list.get_item_count() * 15))
 
 
 func _on_SaveButton_pressed() -> void:

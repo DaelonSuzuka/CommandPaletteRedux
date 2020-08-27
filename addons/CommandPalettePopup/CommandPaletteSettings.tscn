@@ -1,14 +1,30 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://addons/CommandPalettePopup/CommandPaletteSettings.gd" type="Script" id=1]
 
+[sub_resource type="Image" id=1]
+data = {
+"data": PoolByteArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ),
+"format": "LumAlpha8",
+"height": 16,
+"mipmaps": false,
+"width": 16
+}
+
+[sub_resource type="ImageTexture" id=2]
+flags = 4
+flags = 4
+image = SubResource( 1 )
+size = Vector2( 16, 16 )
+
 [node name="CommandPaletteSettings" type="WindowDialog"]
-visible = true
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_bottom = 65.0001
 rect_min_size = Vector2( 0, 665 )
+popup_exclusive = true
 window_title = "Command Palette Settings"
+resizable = true
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -20,13 +36,14 @@ anchor_bottom = 1.0
 margin_left = 50.0
 margin_top = 15.0
 margin_right = -50.0
+margin_bottom = -20.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 margin_right = 924.0
-margin_bottom = 650.0
+margin_bottom = 630.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -41,14 +58,13 @@ __meta__ = {
 [node name="HideScriptPanelOnStart" type="CheckButton" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_right = 924.0
 margin_bottom = 40.0
-text = "Hide script panel on start"
+text = "Hide script panel (list of open scripts, help pages and methods) on start"
 
 [node name="IncludeHelpPages" type="CheckButton" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 44.0
 margin_right = 924.0
 margin_bottom = 84.0
-pressed = true
-text = "Include help pages in open script list"
+text = "Include help pages in open script list (of this plugin)"
 
 [node name="AdaptiveHeight" type="CheckButton" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 88.0
@@ -77,11 +93,23 @@ valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeyboardShortcut"]
 margin_left = 424.0
-margin_right = 924.0
+margin_right = 891.0
 margin_bottom = 24.0
-rect_min_size = Vector2( 500, 0 )
+rect_min_size = Vector2( 467, 0 )
+focus_mode = 0
 size_flags_horizontal = 10
 text = "Control+E"
+editable = false
+context_menu_enabled = false
+shortcut_keys_enabled = false
+selecting_enabled = false
+
+[node name="EditButton" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/KeyboardShortcut"]
+margin_left = 895.0
+margin_right = 924.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 29, 0 )
+icon = SubResource( 2 )
 
 [node name="WindowWidth" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 204.0
@@ -95,13 +123,14 @@ margin_bottom = 19.0
 text = "Window width"
 valign = 1
 
-[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/WindowWidth"]
+[node name="SpinBox" type="SpinBox" parent="MarginContainer/VBoxContainer/SettingsVB/WindowWidth"]
 margin_left = 424.0
 margin_right = 924.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
-text = "1500"
+max_value = 4000.0
+value = 1000.0
 
 [node name="WindowMaxHeight" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 232.0
@@ -115,13 +144,14 @@ margin_bottom = 19.0
 text = "Window max height"
 valign = 1
 
-[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/WindowMaxHeight"]
+[node name="SpinBox" type="SpinBox" parent="MarginContainer/VBoxContainer/SettingsVB/WindowMaxHeight"]
 margin_left = 424.0
 margin_right = 924.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
-text = "920"
+max_value = 4000.0
+value = 920.0
 
 [node name="KeywordAllFiles" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 260.0
@@ -301,7 +331,7 @@ margin_right = 924.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
-text = ": "
+text = "g "
 
 [node name="KeywordGotoMethod" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 512.0
@@ -364,33 +394,66 @@ size_flags_horizontal = 10
 text = "todo "
 
 [node name="ButtonsHB" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
-margin_left = 387.0
-margin_top = 596.0
-margin_right = 537.0
-margin_bottom = 650.0
-rect_min_size = Vector2( 0, 45 )
+margin_left = 329.0
+margin_top = 608.0
+margin_right = 594.0
+margin_bottom = 630.0
 size_flags_horizontal = 4
-size_flags_vertical = 7
+size_flags_vertical = 10
 custom_constants/separation = 25
 
+[node name="CancelButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsHB"]
+margin_right = 72.0
+margin_bottom = 22.0
+text = "Cancel"
+icon = SubResource( 2 )
+
 [node name="SaveButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsHB"]
-margin_top = 17.0
-margin_right = 60.0
-margin_bottom = 37.0
+margin_left = 97.0
+margin_right = 157.0
+margin_bottom = 22.0
 rect_min_size = Vector2( 60, 0 )
 size_flags_horizontal = 4
-size_flags_vertical = 4
+size_flags_vertical = 8
 text = "Save"
+icon = SubResource( 2 )
 
 [node name="DefaultsButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsHB"]
-margin_left = 85.0
-margin_top = 17.0
-margin_right = 150.0
-margin_bottom = 37.0
+margin_left = 182.0
+margin_right = 265.0
+margin_bottom = 22.0
 rect_min_size = Vector2( 60, 0 )
 size_flags_horizontal = 4
-size_flags_vertical = 4
+size_flags_vertical = 8
 text = "Defaults"
+icon = SubResource( 2 )
+
+[node name="EnterShortcutPopup" type="WindowDialog" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+window_title = "Enter Keyboard Shortcut"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MarginContainer" type="MarginContainer" parent="EnterShortcutPopup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ShortcutLabel" type="Label" parent="EnterShortcutPopup/MarginContainer"]
+margin_left = 472.0
+margin_top = 325.0
+margin_right = 552.0
+margin_bottom = 339.0
+size_flags_horizontal = 6
+size_flags_vertical = 6
+text = "Press keys..."
+[connection signal="about_to_show" from="." to="." method="_on_CommandPaletteSettings_about_to_show"]
 [connection signal="popup_hide" from="." to="." method="_on_CommandPaletteSettings_popup_hide"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/SettingsVB/KeyboardShortcut/EditButton" to="." method="_on_ShotcutEditButton_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonsHB/CancelButton" to="." method="_on_CancelButton_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonsHB/SaveButton" to="." method="_on_SaveButton_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ButtonsHB/DefaultsButton" to="." method="_on_DefaultsButton_pressed"]

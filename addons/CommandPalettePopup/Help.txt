@@ -1,4 +1,7 @@
 [color=aqua]All open scripts[/color] will be shown by default.
+
+Starting the filter string with... (pay attention to the spaces):
+
 [color=aqua]%s [/color] will show the open scenes. 
 [color=aqua]%s [/color] will show all scripts, scenes and other files.
 [color=aqua]%s [/color] will show all scenes.
