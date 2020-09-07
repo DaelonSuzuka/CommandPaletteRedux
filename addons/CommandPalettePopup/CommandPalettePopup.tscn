@@ -80,46 +80,36 @@ margin_right = 1004.0
 margin_bottom = 26.0
 
 [node name="MarginContainer" type="MarginContainer" parent="PaletteMarginContainer/VBoxContainer/SearchFilter"]
-margin_right = 708.0
+margin_right = 786.0
 margin_bottom = 26.0
 size_flags_horizontal = 3
 custom_constants/margin_right = 5
 
 [node name="Filter" type="LineEdit" parent="PaletteMarginContainer/VBoxContainer/SearchFilter/MarginContainer"]
-margin_right = 703.0
+margin_right = 781.0
 margin_bottom = 26.0
 rect_min_size = Vector2( 50, 0 )
 clear_button_enabled = true
+shortcut_keys_enabled = false
 right_icon = SubResource( 2 )
 placeholder_text = "Type '?' to get help."
 caret_blink = true
 caret_blink_speed = 0.5
 
 [node name="CopyButton" type="Button" parent="PaletteMarginContainer/VBoxContainer/SearchFilter"]
-margin_left = 712.0
-margin_right = 802.0
+margin_left = 790.0
+margin_right = 880.0
 margin_bottom = 26.0
 hint_tooltip = "Copies the file path to the clipboard if a file is selected. If the selection is a code snippet, the function gets copied."
 text = "Copy Info"
 icon = SubResource( 2 )
 
 [node name="ContextButton" type="Button" parent="PaletteMarginContainer/VBoxContainer/SearchFilter"]
-margin_left = 806.0
-margin_right = 885.0
+margin_left = 884.0
+margin_right = 963.0
 margin_bottom = 26.0
 text = "Context"
 icon = SubResource( 2 )
-
-[node name="SignalButton" type="Button" parent="PaletteMarginContainer/VBoxContainer/SearchFilter"]
-margin_left = 889.0
-margin_right = 963.0
-margin_bottom = 26.0
-text = "Signals"
-icon = SubResource( 2 )
-
-[node name="SignalPopupMenu" type="PopupMenu" parent="PaletteMarginContainer/VBoxContainer/SearchFilter/SignalButton"]
-margin_right = 20.0
-margin_bottom = 20.0
 
 [node name="AddButton" type="Button" parent="PaletteMarginContainer/VBoxContainer/SearchFilter"]
 margin_left = 967.0
@@ -215,9 +205,6 @@ clip_text = true
 [connection signal="text_entered" from="PaletteMarginContainer/VBoxContainer/SearchFilter/MarginContainer/Filter" to="." method="_on_Filter_text_entered"]
 [connection signal="pressed" from="PaletteMarginContainer/VBoxContainer/SearchFilter/CopyButton" to="." method="_on_CopyButton_pressed"]
 [connection signal="pressed" from="PaletteMarginContainer/VBoxContainer/SearchFilter/ContextButton" to="." method="_on_ContextButton_pressed"]
-[connection signal="pressed" from="PaletteMarginContainer/VBoxContainer/SearchFilter/SignalButton" to="." method="_on_SignalButton_pressed"]
-[connection signal="focus_exited" from="PaletteMarginContainer/VBoxContainer/SearchFilter/SignalButton/SignalPopupMenu" to="." method="_on_SignalPopupMenu_focus_exited"]
-[connection signal="index_pressed" from="PaletteMarginContainer/VBoxContainer/SearchFilter/SignalButton/SignalPopupMenu" to="." method="_on_SignalPopupMenu_index_pressed"]
 [connection signal="pressed" from="PaletteMarginContainer/VBoxContainer/SearchFilter/AddButton" to="." method="_on_AddButton_pressed"]
 [connection signal="pressed" from="PaletteMarginContainer/VBoxContainer/SearchFilter/SettingsButton" to="." method="_on_SettingsButton_pressed"]
 [connection signal="item_activated" from="PaletteMarginContainer/VBoxContainer/MarginContainer/TabContainer/ItemList" to="." method="_on_ItemList_item_activated"]

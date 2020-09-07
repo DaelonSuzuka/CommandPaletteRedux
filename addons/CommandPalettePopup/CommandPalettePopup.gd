@@ -16,8 +16,6 @@ onready var add_button = $PaletteMarginContainer/VBoxContainer/SearchFilter/AddB
 onready var context_button = $PaletteMarginContainer/VBoxContainer/SearchFilter/ContextButton
 onready var switch_button = $PaletteMarginContainer/VBoxContainer/HSplitContainer/SwitchIcon
 onready var settings_button = $PaletteMarginContainer/VBoxContainer/SearchFilter/SettingsButton
-onready var signal_button = $PaletteMarginContainer/VBoxContainer/SearchFilter/SignalButton
-onready var signal_popup = $PaletteMarginContainer/VBoxContainer/SearchFilter/SignalButton/SignalPopupMenu
 	
 const UTIL = preload("res://addons/CommandPalettePopup/util.gd")
 	
@@ -32,10 +30,9 @@ var current_main_screen : String = ""
 var script_panel_visible : bool # only updated on context button press
 var old_dock_tab : Control # holds the old tab when switching dock for context menu
 var old_dock_tab_was_visible : bool
-var script_added_to : Node # the node a script, which is created with this plugin, will be added to
 var files_are_updating : bool = false
 var recent_files_are_updating : bool  = false
-enum FILTER {ALL_FILES, ALL_SCENES, ALL_SCRIPTS, ALL_OPEN_SCENES, ALL_OPEN_SCRIPTS, SELECT_NODE, SETTINGS, INSPECTOR, GOTO_LINE, GOTO_METHOD, HELP, \
+enum FILTER {ALL_FILES, ALL_SCENES, ALL_SCRIPTS, ALL_OPEN_SCENES, ALL_OPEN_SCRIPTS, SETTINGS, GOTO_LINE, GOTO_METHOD, HELP, \
 		TREE_FOLDER, FILEEDITOR, TODO}
 var current_filter : int
 	
@@ -43,7 +40,6 @@ var INTERFACE : EditorInterface
 var BASE_CONTROL_VBOX : VBoxContainer
 var EDITOR : ScriptEditor
 var FILE_SYSTEM : EditorFileSystem
-var SCRIPT_CREATE_DIALOG : ScriptCreateDialog
 var EDITOR_SETTINGS : EditorSettings
 var SCRIPT_PANEL : VSplitContainer
 var SCRIPT_LIST : ItemList
@@ -62,18 +58,77 @@ func _ready() -> void:
 	switch_button.icon = get_icon("MirrorX", "EditorIcons")
 	context_button.icon = get_icon("FileList", "EditorIcons")
 	settings_button.icon = get_icon("Tools", "EditorIcons")
-	signal_button.icon = get_icon("Signals", "EditorIcons")
 
 
 func _unhandled_key_input(event: InputEventKey) -> void:
 	var pressed = true if palette_settings.keyboard_shortcut_LineEdit.text.findn("Tab") != -1 else event.pressed # if keyboard shortcut contains tab, you cannot check pressed state
+	if pressed and visible and not filter.text and filter.has_focus():
+		# focus scene tree dock
+		if event.as_text() == "Control+" + palette_settings.focus_scenedock.text:
+			yield(get_tree(), "idle_frame") # to prevent saving the script/scene
+			hide()
+			var scene_dock = UTIL.get_dock("SceneTreeDock", BASE_CONTROL_VBOX)
+			switch_vis_dock(scene_dock)
+			var filter_lineedit : LineEdit = scene_dock.get_child(0).get_child(2)
+			filter_lineedit.grab_focus()
+		
+		# focus filesystem dock
+		elif event.as_text() == "Control+" + palette_settings.focus_filesystemdock.text:
+			yield(get_tree(), "idle_frame") # to prevent other shortcut functionalities
+			hide()
+			var file_dock = UTIL.get_dock("FileSystemDock", BASE_CONTROL_VBOX)
+			switch_vis_dock(file_dock)
+			var filter_lineedit : LineEdit = file_dock.get_child(0).get_child(1).get_child(0)
+			filter_lineedit.grab_focus()
+		
+		# focus node dock
+		elif event.as_text() == "Control+" + palette_settings.focus_nodedock.text:
+			yield(get_tree(), "idle_frame") # to prevent other shortcut functionalities
+			hide()
+			var node_dock = UTIL.get_dock("NodeDock", BASE_CONTROL_VBOX)
+			switch_vis_dock(node_dock)
+			var signal_button : Button = node_dock.get_child(0).get_child(0)
+			signal_button.grab_focus()
+		
+		# focus inspector dock
+		elif event.as_text() == "Control+" + palette_settings.focus_inspectordock.text:
+			yield(get_tree(), "idle_frame") # to prevent other shortcut functionalities
+			hide()
+			var inspector_dock = UTIL.get_dock("InspectorDock", BASE_CONTROL_VBOX)
+			switch_vis_dock(inspector_dock)
+			var filter_lineedit : LineEdit = inspector_dock.get_child(2)
+			filter_lineedit.grab_focus()
+		
+		# focus import dock
+		elif event.as_text() == "Control+" + palette_settings.focus_importdock.text:
+			yield(get_tree(), "idle_frame") # to prevent other shortcut functionalities
+			hide()
+			var import_dock = UTIL.get_dock("ImportDock", BASE_CONTROL_VBOX)
+			switch_vis_dock(import_dock)
+			var button : OptionButton = import_dock.get_child(2).get_child(0).get_child(0)
+			button.grab_focus()
+		
+		# open script editor (useful if the script editor is already open but not focues)
+		elif event.as_text() == "Control+" + palette_settings.focus_scripteditor.text:
+			yield(get_tree(), "idle_frame") # to prevent other shortcut functionalities
+			hide()
+			INTERFACE.set_main_screen_editor("Script")
+			UTIL.get_current_script_texteditor(EDITOR).grab_focus()
+		
+		# switch to last file
+		elif event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text:
+			_switch_to_recent_file()
 	
-	if event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text and pressed and visible and not filter.text and filter.has_focus():
-		_switch_to_recent_file()
-	
+	# open command palette
 	elif event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text and pressed:
 		_update_project_settings()
 		_update_popup_list(true)
+
+
+func switch_vis_dock(dock : Node) -> void:
+	var tabcontainer : TabContainer = dock.get_parent()
+	if tabcontainer.current_tab != dock.get_index():
+		tabcontainer.current_tab = dock.get_index()
 
 
 func _switch_to_recent_file() -> void:
@@ -106,15 +161,6 @@ func _on_main_screen_changed(new_screen : String) -> void:
 	_update_recent_files()
 
 
-func _on_script_created(script : Script) -> void:
-	if script_added_to: # script was created with this plugin
-		script_added_to.set_script(script)
-		if script_added_to.filename:
-			script.set_meta("Scene_Path", script_added_to.filename)
-		INTERFACE.select_file(script.resource_path)
-		_open_script(script)
-
-
 func _on_filesystem_changed() -> void:
 	# to prevent unnecessarily updating cause the signal gets fired multiple times
 	if not files_are_updating:
@@ -132,7 +178,7 @@ func _on_CopyButton_pressed() -> void:
 	var selection = item_list.get_selected_items()
 	if selection:
 		if current_filter == FILTER.SETTINGS:
-			OS.clipboard = item_list.get_item_text(selection[0])
+			OS.clipboard = "\"" + item_list.get_item_text(selection[0]) + "\""
 		
 		elif _current_filter_displays_files():
 			var path : String = ""
@@ -142,17 +188,7 @@ func _on_CopyButton_pressed() -> void:
 			else:
 				path = item_list.get_item_text(selection[0] - 1) + ("/" if not item_list.get_item_text(selection[0] - 1).ends_with("/") else "") \
 						+ item_list.get_item_text(selection[0]).strip_edges()
-			OS.clipboard = path
-		
-		elif current_filter == FILTER.SELECT_NODE:
-			var selected_index = selection[0]
-			var selected_name = item_list.get_item_text(selected_index)
-			var path : String = ""
-			path = item_list.get_item_text(selected_index - 1) + selected_name if item_list.get_item_text(selected_index - 1).begins_with("./") else "."
-			OS.clipboard = path
-		
-		elif current_filter == FILTER.INSPECTOR:
-			OS.clipboard = item_list.get_item_text(selection[0])
+			OS.clipboard = "\"" + path + "\""
 		
 		elif current_filter == FILTER.TREE_FOLDER:
 			var path : String = filter.text.substr(palette_settings.keyword_folder_tree_LineEdit.text.length())
@@ -163,7 +199,7 @@ func _on_CopyButton_pressed() -> void:
 				path += item_list.get_item_text(selection[0])
 			else:
 				path = item_list.get_item_text(selection[0])
-			OS.clipboard = "res://" + path.strip_edges()
+			OS.clipboard = "\"" + "res://" + path.strip_edges() + "\""
 	
 	hide()
 
@@ -171,22 +207,10 @@ func _on_CopyButton_pressed() -> void:
 func _on_AddButton_pressed() -> void:
 	if filter.text.begins_with(palette_settings.keyword_editor_settings_LineEdit.text):
 		settings_adder._show()
-	
-	elif filter.text.begins_with(palette_settings.keyword_select_node_LineEdit.text):
-		var selection = item_list.get_selected_items()
-		if selection:
-			var selected_index = selection[0]
-			var selected_name = item_list.get_item_text(selected_index).strip_edges()
-			var node_path = item_list.get_item_text(selected_index - 1) + selected_name if item_list.get_item_text(selected_index - 1).begins_with("./") else "."
-			script_added_to = INTERFACE.get_edited_scene_root().get_node(node_path)
-			var file_path = INTERFACE.get_edited_scene_root().filename.get_base_dir()
-			hide()
-			SCRIPT_CREATE_DIALOG.config(script_added_to.get_class(), (file_path if file_path else "res:/") + "/" + selected_name + ".gd")
-			SCRIPT_CREATE_DIALOG.popup_centered()
 
 
 func _on_SettingsButton_pressed() -> void:
-	palette_settings.popup_centered(Vector2(1000, 700))
+	palette_settings.popup_centered(Vector2(1000, 800))
 
 
 func _on_ContextButton_pressed() -> void:
@@ -222,51 +246,6 @@ func _on_ContextButton_pressed() -> void:
 					child.call_deferred("set_position", SCRIPT_LIST.rect_global_position + Vector2(SCRIPT_LIST.rect_size.x - 25, pos.y))
 					if not child.is_connected("popup_hide", self, "_on_script_context_menu_hide"):
 						child.connect("popup_hide", self, "_on_script_context_menu_hide")
-					break
-		
-		elif current_filter == FILTER.SELECT_NODE:
-			if not current_main_screen in ["2D", "3D"]:
-				INTERFACE.set_main_screen_editor("3D") if INTERFACE.get_edited_scene_root() is Spatial else INTERFACE.set_main_screen_editor("2D")
-				yield(get_tree(), "idle_frame")
-				
-			var scene_tree_dock = UTIL.get_dock("SceneTreeDock", BASE_CONTROL_VBOX)
-			old_dock_tab = scene_tree_dock.get_parent().get_current_tab_control()
-			old_dock_tab_was_visible = scene_tree_dock.get_parent().visible and scene_tree_dock.get_parent().get_parent().visible
-			var i = 0
-			while scene_tree_dock.get_parent().get_current_tab_control() != scene_tree_dock:
-				scene_tree_dock.get_parent().current_tab = i
-				i += 1
-			if not old_dock_tab_was_visible:
-				scene_tree_dock.get_parent().show()
-				scene_tree_dock.get_parent().get_parent().show()
-				scene_tree_dock.get_parent().get_parent().get_parent().show()
-			var scene_tree = scene_tree_dock.get_child(3).get_child(0) as Tree
-			var selected_name = item_list.get_item_text(selection[0])
-			var sel = INTERFACE.get_selection()
-			sel.clear()
-			var node_path = item_list.get_item_text(selection[0] - 1) + selected_name if item_list.get_item_text(selection[0] - 1).begins_with("./") else "."
-			sel.add_node(INTERFACE.get_edited_scene_root().get_node(node_path))
-			var pos = Vector2(30, 5) # x = 30 so we don't click the folding arrow
-			yield(get_tree().create_timer(.01), "timeout")
-			while selected_name != scene_tree.get_item_at_position(pos).get_text(0):
-				pos.x = 5
-				pos.y += 5
-				if pos.y > OS.get_screen_size().y:
-					push_warning("Command Palette Plugin: Error getting context menu from SceneTreeDock.")
-					return
-			pos.y += 5
-			hide()
-			var simul_rmb = InputEventMouseButton.new()
-			simul_rmb.button_index = BUTTON_RIGHT
-			simul_rmb.pressed = true
-			simul_rmb.position = scene_tree.rect_global_position + pos
-			Input.parse_input_event(simul_rmb)
-			for child in scene_tree_dock.get_children():
-				if child is PopupMenu:
-					child.allow_search = true
-					child.call_deferred("set_position", scene_tree.rect_global_position + Vector2(0, pos.y + 25))
-					if not child.is_connected("popup_hide", self, "_on_node_and_file_context_menu_hide"):
-						child.connect("popup_hide", self, "_on_node_and_file_context_menu_hide")
 					break
 		
 		elif current_filter in [FILTER.ALL_FILES, FILTER.ALL_SCENES, FILTER.ALL_SCRIPTS, FILTER.TREE_FOLDER]:
@@ -358,50 +337,6 @@ func _on_node_and_file_context_menu_hide() -> void:
 	old_dock_tab = null
 
 
-func _on_SignalButton_pressed() -> void:
-	var selected_index = item_list.get_selected_items()[0]
-	var selected_name = item_list.get_item_text(selected_index)
-	var path : String = item_list.get_item_text(selected_index - 1) + selected_name if item_list.get_item_text(selected_index - 1).begins_with("./") else "."
-	var node = INTERFACE.get_edited_scene_root().get_node(path)
-	signal_popup.clear()
-	signal_popup.rect_size = Vector2(1, 1) # to adapt the height
-	for signals in node.get_signal_list():
-		signal_popup.add_item(signals.name)
-	signal_popup.popup()
-	signal_popup.rect_global_position = signal_button.rect_global_position
-
-
-func _on_SignalPopupMenu_index_pressed(index : int) -> void:
-	var signal_name = signal_popup.get_item_text(index) + "("
-	var node_dock = UTIL.get_dock("NodeDock", BASE_CONTROL_VBOX)
-	var connection_dock_tree = node_dock.get_child(1).get_child(0)
-	var selected_index = item_list.get_selected_items()[0]
-	var node_path = item_list.get_item_text(selected_index - 1) + item_list.get_item_text(selected_index) \
-			if item_list.get_item_text(selected_index - 1).begins_with("./") else "."
-	var selection = INTERFACE.get_selection()
-	selection.clear()
-	selection.add_node(INTERFACE.get_edited_scene_root().get_node(node_path))
-	yield(get_tree().create_timer(.01), "timeout")
-	_get_node_dock_tree_item(connection_dock_tree.get_root(), signal_name, connection_dock_tree)
-
-
-func _get_node_dock_tree_item(root : TreeItem, signal_name : String, connection_dock_tree : Tree) -> void:
-	if root and root.get_text(0).begins_with(signal_name):
-		hide()
-		root.select(0)
-		connection_dock_tree.emit_signal("item_activated")
-	else:
-		root = root.get_children()
-		while root:
-			_get_node_dock_tree_item(root, signal_name, connection_dock_tree)
-			root = root.get_next()
-
-
-func _on_SignalPopupMenu_focus_exited() -> void:
-	signal_popup.hide()
-	filter.call_deferred("grab_focus")
-
-
 func _on_CommandPalettePopup_popup_hide() -> void:
 	filter.clear()
 
@@ -416,8 +351,7 @@ func _on_Filter_text_changed(new_txt : String) -> void:
 				var keywords = [palette_settings.keyword_goto_line_LineEdit.text, palette_settings.keyword_goto_method_LineEdit.text, \
 						palette_settings.keyword_all_files_LineEdit.text, palette_settings.keyword_all_scenes_LineEdit.text, \
 						palette_settings.keyword_all_scripts_LineEdit.text, palette_settings.keyword_all_open_scenes_LineEdit.text, \
-						palette_settings.keyword_select_node_LineEdit.text, palette_settings.keyword_editor_settings_LineEdit.text, \
-						palette_settings.keyword_set_inspector_LineEdit.text]
+						palette_settings.keyword_editor_settings_LineEdit.text]
 				for keyword in keywords:
 					if filter.text.begins_with(keyword):
 						key = keyword
@@ -436,14 +370,6 @@ func _on_Filter_text_changed(new_txt : String) -> void:
 					path_to_autocomplete = "res://"
 				filter.text = key + path_to_autocomplete
 				filter.caret_position = filter.text.length()
-			
-			elif current_filter == FILTER.SELECT_NODE:
-				var sel = INTERFACE.get_selection()
-				sel.clear()
-				var node_path = item_list.get_item_text(selection[0] - 1) + item_list.get_item_text(selection[0])
-				sel.add_node(INTERFACE.get_edited_scene_root().get_node(node_path if node_path.begins_with("./") else "."))
-				filter.text = ""
-				filter.grab_focus()
 			
 			elif current_filter == FILTER.TREE_FOLDER:
 				var path = filter.text.substr(palette_settings.keyword_folder_tree_LineEdit.text.length()).strip_edges().rsplit("/", true, 1)[0] \
@@ -506,7 +432,7 @@ func _activate_item(selected_index : int = -1) -> void:
 	elif current_filter == FILTER.SETTINGS:
 		var setting_path = Array(selected_name.split("/"))
 		var setting_name : String
-		if setting_path.size() == 4: # TOFIXME: this may not work for settings the user added
+		if setting_path.size() == 4: # TODO: this may not work for settings the user added
 			var tmp = setting_path.pop_back()
 			setting_name = setting_path.pop_back() + "/" + tmp
 		else:
@@ -515,28 +441,6 @@ func _activate_item(selected_index : int = -1) -> void:
 			_open_settings(setting_path, setting_name, false)
 		else:
 			_open_settings(setting_path, setting_name)
-	
-	elif current_filter == FILTER.INSPECTOR:
-		var selection = INTERFACE.get_selection()
-		if selection.get_selected_nodes():
-			var node = selection.get_selected_nodes()[0]
-			selection.clear()
-			selection.add_node(node)
-		
-		yield(get_tree().create_timer(.01), "timeout")
-		INTERFACE.get_inspector().follow_focus = true
-		var inspector_dock = INTERFACE.get_inspector().get_parent()
-		if inspector_dock.get_parent().visible:
-			inspector_dock.get_parent().current_tab = inspector_dock.get_index()
-		else:
-			push_warning("Command Palette Plugin: Inspector is not visible")
-		_inspector_property_editor_grab_focus(selected_name)
-	
-	elif current_filter == FILTER.SELECT_NODE:
-		var selection = INTERFACE.get_selection()
-		selection.clear()
-		var node_path = item_list.get_item_text(selected_index - 1) + selected_name if item_list.get_item_text(selected_index - 1).begins_with("./") else "."
-		selection.add_node(INTERFACE.get_edited_scene_root().get_node(node_path))
 	
 	elif current_filter == FILTER.TREE_FOLDER:
 		var path : String = filter.text.substr(palette_settings.keyword_folder_tree_LineEdit.text.length())
@@ -558,7 +462,7 @@ func _activate_item(selected_index : int = -1) -> void:
 				break
 	
 	elif current_filter == FILTER.TODO:
-		var todo_dock = UTIL.m("TODO", BASE_CONTROL_VBOX)
+		var todo_dock = UTIL.get_dock("TODO", BASE_CONTROL_VBOX)
 		var tree = todo_dock.get_child(1).get_child(0) as Tree
 		var file = tree.get_root().get_children()
 		while file:
@@ -603,7 +507,7 @@ func _open_settings(setting_path : Array, setting_name : String, editor : bool =
 func _inspector_property_editor_grab_focus(settings_name : String, node : Node = INTERFACE.get_inspector().get_child(0)): # Inpsector dock is default
 	if node is EditorProperty:
 		if node.get_edited_property() == settings_name:
-			# TOFIXME potentially error prone, needs a better way
+			# TODO potentially error prone, needs a better way
 			while(node.get_child(0) is Container): 
 				node = node.get_child(0) 
 			for child in node.get_children():
@@ -659,7 +563,6 @@ func _update_popup_list(just_popupped : bool = false) -> void:
 		rect_size = Vector2(palette_settings.width_SpinBox.value as float, palette_settings.max_height_SpinBox.value as float)
 		popup_centered()
 		filter.grab_focus()
-		script_added_to = null
 	
 	item_list.clear()
 	var search_string : String = filter.text
@@ -699,12 +602,6 @@ func _update_popup_list(just_popupped : bool = false) -> void:
 				if search_string.ends_with(" "):
 					EDITOR.goto_line(clamp(number as int - 1, 0, max_lines))
 	
-	# select node
-	elif search_string.begins_with(palette_settings.keyword_select_node_LineEdit.text):
-		current_filter = FILTER.SELECT_NODE
-		_build_node_list(INTERFACE.get_edited_scene_root(), search_string.substr(palette_settings.keyword_select_node_LineEdit.text.length()).strip_edges())
-		_count_node_list()
-	
 	# file plugin
 	elif search_string.begins_with(palette_settings.keyword_texteditor_plugin_LineEdit.text):
 		_set_file_list()
@@ -730,15 +627,10 @@ func _update_popup_list(just_popupped : bool = false) -> void:
 		current_filter = FILTER.SETTINGS
 		_build_item_list(search_string.substr(palette_settings.keyword_editor_settings_LineEdit.text.length()))
 	
-	# edit inspector settings
-	elif search_string.begins_with(palette_settings.keyword_set_inspector_LineEdit.text):
-		current_filter = FILTER.INSPECTOR
-		_build_item_list(search_string.substr(palette_settings.keyword_set_inspector_LineEdit.text.length()))
-	
 	# folder tree view
 	elif search_string.begins_with(palette_settings.keyword_folder_tree_LineEdit.text):
 		current_filter = FILTER.TREE_FOLDER
-		_build_folder_view(search_string.substr(palette_settings.keyword_set_inspector_LineEdit.text.length()))
+		_build_folder_view(search_string.substr(palette_settings.keyword_folder_tree_LineEdit.text.length()))
 	
 	# methods of the current script
 	elif search_string.begins_with(palette_settings.keyword_goto_method_LineEdit.text):
@@ -790,17 +682,19 @@ func _build_help_page() -> void:
 	var file = File.new()
 	file.open("res://addons/CommandPalettePopup/Help.txt", File.READ)
 	info_box.bbcode_text = file.get_as_text() % [palette_settings.keyword_all_open_scenes_LineEdit.text, palette_settings.keyword_all_files_LineEdit.text, \
-			palette_settings.keyword_all_scenes_LineEdit.text, palette_settings.keyword_all_scripts_LineEdit.text,palette_settings.keyword_select_node_LineEdit.text, \
-			palette_settings.keyword_editor_settings_LineEdit.text,palette_settings.keyword_set_inspector_LineEdit.text, \
-			palette_settings.keyword_folder_tree_LineEdit.text, palette_settings.keyword_goto_line_LineEdit.text, palette_settings.keyword_goto_method_LineEdit.text, \
-			palette_settings.keyword_set_inspector_LineEdit.text, palette_settings.keyword_texteditor_plugin_LineEdit.text, palette_settings.keyword_todo_plugin_LineEdit.text]
+			palette_settings.keyword_all_scenes_LineEdit.text, palette_settings.keyword_all_scripts_LineEdit.text, \
+			palette_settings.keyword_editor_settings_LineEdit.text, palette_settings.keyword_folder_tree_LineEdit.text, \
+			palette_settings.keyword_goto_line_LineEdit.text, palette_settings.keyword_goto_method_LineEdit.text, \
+			palette_settings.focus_scenedock.text, palette_settings.focus_inspectordock.text, palette_settings.focus_nodedock.text, \
+			palette_settings.focus_filesystemdock.text, palette_settings.focus_importdock.text, palette_settings.focus_scripteditor.text, palette_settings.focus_scenedock.text, \
+			palette_settings.keyword_texteditor_plugin_LineEdit.text, palette_settings.keyword_todo_plugin_LineEdit.text]
 	file.close()
 
 
 func _build_item_list(search_string : String) -> void:
 	search_string = search_string.strip_edges().replace(" ", "*")
 	var name_matched_list : Array # FILE NAME matched search_string; this gets listed first
-	var path_matched_list : Array # otherwise we put the file paths here
+	var path_matched_list : Array # otherwise there is a match in the file path
 	match current_filter:
 		FILTER.ALL_FILES:
 			for path in scenes:
@@ -848,7 +742,7 @@ func _build_item_list(search_string : String) -> void:
 		FILTER.ALL_OPEN_SCENES:
 			var open_scenes = INTERFACE.get_open_scenes()
 			for path in open_scenes:
-				if search_string and not path.get_file().matchn("*" + search_string + "*") and not search_string.is_subsequence_ofi(path.get_file()):
+				if search_string and not path.matchn("*" + search_string + "*") and not search_string.is_subsequence_ofi(path):
 					continue
 				if search_string and search_string.is_subsequence_ofi(path.get_file()):
 					name_matched_list.push_back(path)
@@ -859,7 +753,7 @@ func _build_item_list(search_string : String) -> void:
 			var open_scripts = EDITOR.get_open_scripts()
 			for script in open_scripts:
 				var path = script.resource_path
-				if search_string and not path.get_file().matchn("*" + search_string + "*") and not search_string.is_subsequence_ofi(path.get_file()):
+				if search_string and not path.matchn("*" + search_string + "*") and not search_string.is_subsequence_ofi(path):
 					continue
 				if search_string and search_string.is_subsequence_ofi(path.get_file()):
 					name_matched_list.push_back(path)
@@ -901,25 +795,18 @@ func _build_item_list(search_string : String) -> void:
 			for setting in editor_settings:
 				if search_string and not setting.matchn("*" + search_string + "*") and not search_string.is_subsequence_ofi(setting):
 					continue
-				path_matched_list.push_back(setting)
+				if search_string and search_string.is_subsequence_ofi(setting.get_file()):
+					name_matched_list.push_back(setting)
+				else:
+					path_matched_list.push_back(setting)
 			
 			for setting in project_settings:
 				if search_string and not setting.matchn("*" + search_string + "*") and not search_string.is_subsequence_ofi(setting):
 					continue
-				path_matched_list.push_back(setting)
-		
-		FILTER.INSPECTOR:
-			if INTERFACE.get_selection().get_selected_nodes():
-				var node = INTERFACE.get_selection().get_selected_nodes()[0]  
-				for property in node.get_property_list():
-					if property.name and property.usage & PROPERTY_USAGE_EDITOR:
-						if search_string and not property.name.matchn("*" + search_string + "*") and not search_string.is_subsequence_ofi(property.name):
-							continue
-						path_matched_list.push_back(property.name)
-			else:
-				item_list.add_item("No node selected.")
-				item_list.set_item_disabled(item_list.get_item_count() - 1, true)
-				return
+				if search_string and search_string.is_subsequence_ofi(setting.get_file()):
+					name_matched_list.push_back(setting)
+				else:
+					path_matched_list.push_back(setting)
 	
 	if _current_filter_displays_files():
 		_quick_sort_by_file_name(name_matched_list, 0, name_matched_list.size() - 1) 
@@ -940,6 +827,10 @@ func _build_item_list(search_string : String) -> void:
 				item_list.set_item_icon(item_list.get_item_count() - 1,  scripts[name_matched_list[idx]].Icon)
 			elif other_files.has(name_matched_list[idx]):
 				item_list.set_item_icon(item_list.get_item_count() - 1, other_files[name_matched_list[idx]].Icon)
+		elif current_filter == FILTER.SETTINGS:
+			item_list.add_item("Editor :: " if editor_settings.has(name_matched_list[idx]) else "Project :: ", null, false)
+			item_list.set_item_disabled(item_list.get_item_count() - 1, true)
+			item_list.add_item(name_matched_list[idx])
 		else:
 			item_list.add_item(name_matched_list[idx].get_file())
 			if scenes.has(name_matched_list[idx]):
@@ -957,11 +848,6 @@ func _build_item_list(search_string : String) -> void:
 		
 		if current_filter == FILTER.SETTINGS:
 			item_list.add_item("Editor :: " if editor_settings.has(path_matched_list[idx]) else "Project :: ", null, false)
-			item_list.set_item_disabled(item_list.get_item_count() - 1, true)
-			item_list.add_item(path_matched_list[idx])
-		
-		elif current_filter == FILTER.INSPECTOR:
-			item_list.add_item(INTERFACE.get_selection().get_selected_nodes()[0].name  + " :: ")
 			item_list.set_item_disabled(item_list.get_item_count() - 1, true)
 			item_list.add_item(path_matched_list[idx])
 		
@@ -1026,43 +912,17 @@ func _build_todo_list(search_string : String, todo_dock_tree : Control) -> void:
 		item_list.add_item(todo_dock_tree.get_root().get_children().get_text(0)) # Nothing to do in this project/script
 
 
-# select a node
-func _build_node_list(root : Node, search_string : String) -> void:
-	if not search_string or root.name.matchn("*" + search_string.strip_edges().replace(" ", "*") + "*") or search_string.is_subsequence_ofi(root.name):
-		item_list.add_item("", null, false)
-		
-		if root == INTERFACE.get_edited_scene_root():
-			item_list.add_item(".", null, false)
-		elif root.get_parent() == INTERFACE.get_edited_scene_root():
-			item_list.add_item("./", null, false)
-		else:
-			item_list.add_item("./" + String(INTERFACE.get_edited_scene_root().get_path_to(root.get_parent())) + "/", null, false)
-		item_list.set_item_disabled(item_list.get_item_count() - 1, true)
-		
-		item_list.add_item(root.name)
-	
-	for child in root.get_children():
-		if child.owner == INTERFACE.get_edited_scene_root(): # otherwise also "subnodes" not created by the user (like timer/popup)
-			_build_node_list(child, search_string)
-
-
-# select a node
-func _count_node_list() -> void:
-	for i in item_list.get_item_count() / item_list.max_columns:
-		item_list.set_item_text(i * item_list.max_columns, " " + String(i) + "  :: ")
-
-
-# folder view
+# folder view / traversal in tree style
 func _build_folder_view(search_string : String) -> void:
 	search_string = search_string.strip_edges()
-	while search_string.begins_with("/"):
+	while search_string.begins_with("/") or search_string.begins_with(":"):
 		search_string.erase(0, 1)
 	
 	var counter = 0
 	for folder_path in folders:
-		var fname = search_string.substr(search_string.get_base_dir().length() + (1 if search_string.count("/") > 0 else 0))
+		var folder_name = search_string.substr(search_string.get_base_dir().length() + (1 if search_string.count("/") > 0 else 0))
 		if ("res://" + search_string.get_base_dir() + ("/" if search_string.count("/") != 0 else "")).to_lower() == folders[folder_path].Parent_Path.to_lower() \
-				and folders[folder_path].Folder_Name.matchn(fname + "*"):
+				and folder_name.strip_edges().is_subsequence_ofi(folders[folder_path].Folder_Name):
 			item_list.add_item(" " + String(counter) + "  :: ", null, false)
 			item_list.add_item(folders[folder_path].Folder_Name, get_icon("Folder", "EditorIcons"))
 			if folders[folder_path].Subdir_Count:
@@ -1075,17 +935,17 @@ func _build_folder_view(search_string : String) -> void:
 	
 	var list : Array
 	for path in scenes:
-		if ("res://" + search_string.get_base_dir().to_lower() != path.get_base_dir().to_lower()) or not path.get_file().matchn(search_string.get_file() + "*"):
+		if ("res://" + search_string.get_base_dir().to_lower() != path.get_base_dir().to_lower()) or not search_string.get_file().strip_edges().is_subsequence_ofi(path.get_file()):
 			continue
 		list.push_back(path)
 	
 	for path in scripts:
-		if ("res://" + search_string.get_base_dir().to_lower() != path.get_base_dir().to_lower()) or not path.get_file().matchn(search_string.get_file() + "*"):
+		if ("res://" + search_string.get_base_dir().to_lower() != path.get_base_dir().to_lower()) or not search_string.get_file().strip_edges().is_subsequence_ofi(path.get_file()):
 			continue
 		list.push_back(path)
 	
 	for path in other_files:
-		if ("res://" + search_string.get_base_dir().to_lower() != path.get_base_dir().to_lower()) or not path.get_file().matchn(search_string.get_file() + "*"):
+		if ("res://" + search_string.get_base_dir().to_lower() != path.get_base_dir().to_lower()) or not search_string.get_file().strip_edges().is_subsequence_ofi(path.get_file()):
 			continue
 		list.push_back(path)
 	list.sort()
@@ -1116,29 +976,21 @@ func _setup_buttons() -> void:
 			copy_button.visible = true
 			copy_button.text = "Copy File Path"
 			add_button.visible = false
-			signal_button.visible = false
 			context_button.visible = true if current_filter != FILTER.ALL_OPEN_SCENES else false
-		FILTER.SELECT_NODE:
-			copy_button.visible = true
-			copy_button.text = "Copy Node Path"
-			add_button.visible = true
-			add_button.icon = get_icon("ScriptCreate", "EditorIcons")
-			signal_button.visible = true
-			context_button.visible = true
-		FILTER.SETTINGS, FILTER.INSPECTOR:
+		
+		FILTER.SETTINGS:
 			copy_button.visible = true
 			copy_button.text = "Copy Settings Path"
 			if current_filter == FILTER.SETTINGS:
 				add_button.visible = true
 				add_button.icon = get_icon("MultiEdit", "EditorIcons")
-			signal_button.visible = false
 			context_button.visible = false
 		FILTER.GOTO_LINE, FILTER.GOTO_METHOD, FILTER.HELP, FILTER.FILEEDITOR, FILTER.TODO:
-			for button in [add_button, copy_button, signal_button, context_button]:
+			for button in [add_button, copy_button, context_button]:
 				button.visible = false
 	
 	if item_list.get_item_count() < item_list.max_columns:
-		for button in [add_button, copy_button, context_button, signal_button]:
+		for button in [add_button, copy_button, context_button]:
 			button.visible = false
 
 
@@ -1263,6 +1115,7 @@ func _update_project_settings() -> void:
 			project_settings[setting.name] = setting
 
 
+# 3rd party plugin; FileEditor
 func _set_file_list() -> void:
 	for child in EDITOR.get_parent().get_children():
 		if child.name == "FileEditor" and child.get_class() == "Control":

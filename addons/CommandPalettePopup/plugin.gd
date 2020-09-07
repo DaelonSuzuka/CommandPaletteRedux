@@ -28,7 +28,6 @@ func _init_palette() -> void:
 	command_palette_popup.BASE_CONTROL_VBOX = get_editor_interface().get_base_control().get_child(1)
 	command_palette_popup.EDITOR = get_editor_interface().get_script_editor()
 	command_palette_popup.FILE_SYSTEM = get_editor_interface().get_resource_filesystem()
-	command_palette_popup.SCRIPT_CREATE_DIALOG = get_script_create_dialog()
 	command_palette_popup.EDITOR_SETTINGS = get_editor_interface().get_editor_settings()
 	command_palette_popup.SCRIPT_PANEL = get_editor_interface().get_script_editor().get_child(0).get_child(1).get_child(0)
 	command_palette_popup.SCRIPT_LIST = get_editor_interface().get_script_editor().get_child(0).get_child(1).get_child(0).get_child(0).get_child(1)
@@ -38,7 +37,6 @@ func _init_palette() -> void:
 	connect("scene_changed", command_palette_popup, "_on_scene_changed")
 	get_editor_interface().get_resource_filesystem().connect("filesystem_changed", command_palette_popup, "_on_filesystem_changed")
 	get_editor_interface().get_script_editor().get_child(0).get_child(1).get_child(1).connect("tab_changed", command_palette_popup, "_on_script_tab_changed")
-	get_script_create_dialog().connect("script_created", command_palette_popup, "_on_script_created")
 	get_editor_interface().get_editor_settings().connect("settings_changed", command_palette_popup, "_update_editor_settings")
 	
 	yield(get_tree().create_timer(0.2), "timeout")

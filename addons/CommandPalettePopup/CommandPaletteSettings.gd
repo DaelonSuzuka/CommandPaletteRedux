@@ -15,9 +15,7 @@ onready var keyword_all_files_LineEdit = $MarginContainer/VBoxContainer/Settings
 onready var keyword_all_scenes_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordAllScenes/LineEdit
 onready var keyword_all_scripts_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordAllScripts/LineEdit
 onready var keyword_all_open_scenes_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordOpenScenes/LineEdit
-onready var keyword_select_node_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordSelectNode/LineEdit
 onready var keyword_editor_settings_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordSettings/LineEdit
-onready var keyword_set_inspector_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordInspector/LineEdit
 onready var keyword_folder_tree_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordFileTree/LineEdit
 onready var keyword_texteditor_plugin_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordTexteditorPlugin/LineEdit
 onready var keyword_todo_plugin_LineEdit = $MarginContainer/VBoxContainer/SettingsVB/KeywordTODOPlugin/LineEdit
@@ -27,6 +25,19 @@ onready var defaults_button := $MarginContainer/VBoxContainer/ButtonsHB/Defaults
 onready var shortcut_edit_button := $MarginContainer/VBoxContainer/SettingsVB/KeyboardShortcut/EditButton
 onready var shortcut_file_dialog := $EnterShortcutPopup
 onready var shortcut_dialog_label := $EnterShortcutPopup/MarginContainer/ShortcutLabel
+onready var focus_scenedock := $MarginContainer/VBoxContainer/SettingsVB/FocusScene/LineEdit
+onready var focus_inspectordock := $MarginContainer/VBoxContainer/SettingsVB/FocusInspector/LineEdit
+onready var focus_nodedock := $MarginContainer/VBoxContainer/SettingsVB/FocusNode/LineEdit
+onready var focus_filesystemdock := $MarginContainer/VBoxContainer/SettingsVB/FocusFileSystem/LineEdit
+onready var focus_importdock := $MarginContainer/VBoxContainer/SettingsVB/FocusImport/LineEdit
+onready var focus_scripteditor := $MarginContainer/VBoxContainer/SettingsVB/FocusScriptEditor/LineEdit
+onready var scenedock_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusScene/EditButton2
+onready var inspector_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusInspector/EditButton3
+onready var node_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusNode/EditButton4
+onready var filesystem_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusFileSystem/EditButton5
+onready var import_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusImport/EditButton6
+onready var scripteditor_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusScriptEditor/EditButton7
+var currently_edited_shortcut # edit button for setting the key shortcuts
 
 
 func _ready() -> void:
@@ -35,8 +46,17 @@ func _ready() -> void:
 	cancel_button.icon = get_icon("Close", "EditorIcons")
 	defaults_button.icon = get_icon("Reload", "EditorIcons")
 	shortcut_edit_button.icon = get_icon("Edit", "EditorIcons")
+	scenedock_editbutton.icon = get_icon("Edit", "EditorIcons")
+	inspector_editbutton.icon = get_icon("Edit", "EditorIcons")
+	node_editbutton.icon = get_icon("Edit", "EditorIcons")
+	filesystem_editbutton.icon = get_icon("Edit", "EditorIcons")
+	import_editbutton.icon = get_icon("Edit", "EditorIcons")
+	scripteditor_editbutton.icon = get_icon("Edit", "EditorIcons")
 	shortcut_file_dialog.connect("hide", self, "_on_EnterShortcutPopup_popup_hide") # connection via GUI didn't work
 	shortcut_file_dialog.connect("modal_closed", self, "_on_EnterShortcutPopup_popup_hide") # connection via GUI didn't work
+	
+	for button in [shortcut_edit_button, scenedock_editbutton, inspector_editbutton, node_editbutton, filesystem_editbutton, import_editbutton, scripteditor_editbutton]:
+		button.connect("pressed", self, "_on_ShotcutEditButton_pressed", [button])
 
 
 func _unhandled_key_input(event: InputEventKey) -> void:
@@ -49,7 +69,14 @@ func _unhandled_key_input(event: InputEventKey) -> void:
 		
 		# Settings page: recording keyboard input on release for shortcut setting.
 		elif shortcut_file_dialog.visible and not event.pressed:
-			keyboard_shortcut_LineEdit.text = event.as_text()
+			if currently_edited_shortcut == shortcut_edit_button:
+				keyboard_shortcut_LineEdit.text = event.as_text()
+			else:
+				var key_combo : String = event.as_text()
+				if key_combo.find("Control") != -1:
+					# Control is automatically added in CommandPalettePopup.gd
+					key_combo.erase(0, 8) # erase "Control+"
+				currently_edited_shortcut.get_parent().get_node("LineEdit").text = key_combo
 			shortcut_file_dialog.hide()
 		
 		get_tree().set_input_as_handled()
@@ -78,9 +105,10 @@ func _on_CommandPaletteSettings_popup_hide() -> void:
 	get_parent().filter.grab_focus()
 
 
-func _on_ShotcutEditButton_pressed() -> void: # shortcut editor button
-	if shortcut_edit_button.icon == get_icon("Edit", "EditorIcons"):
-		shortcut_edit_button.set_deferred("icon", get_icon("DebugSkipBreakpointsOff", "EditorIcons"))
+func _on_ShotcutEditButton_pressed(button) -> void: # shortcut editor button
+	if button.icon == get_icon("Edit", "EditorIcons"):
+		currently_edited_shortcut = button
+		button.set_deferred("icon", get_icon("DebugSkipBreakpointsOff", "EditorIcons"))
 		var size = Vector2(300, 100)
 		shortcut_file_dialog.rect_size = size
 		shortcut_file_dialog.rect_global_position = OS.get_screen_size() / 2 - size / 2
@@ -89,8 +117,8 @@ func _on_ShotcutEditButton_pressed() -> void: # shortcut editor button
 
 
 func _on_EnterShortcutPopup_popup_hide() -> void: 
-	shortcut_edit_button.icon = get_icon("Edit", "EditorIcons")
-	shortcut_edit_button.grab_focus()
+	currently_edited_shortcut.icon = get_icon("Edit", "EditorIcons")
+	currently_edited_shortcut.grab_focus()
 
 
 func load_settings() -> void:
@@ -111,9 +139,7 @@ func load_settings() -> void:
 		keyword_all_scenes_LineEdit.text = config.get_value("Settings", "keyword_all_scenes")
 		keyword_all_scripts_LineEdit.text = config.get_value("Settings", "keyword_all_scripts")
 		keyword_all_open_scenes_LineEdit.text = config.get_value("Settings", "keyword_all_open_scenes")
-		keyword_select_node_LineEdit.text = config.get_value("Settings", "keyword_select_node")
 		keyword_editor_settings_LineEdit.text = config.get_value("Settings", "keyword_editor_settings")
-		keyword_set_inspector_LineEdit.text = config.get_value("Settings", "keyword_set_inspector")
 		keyword_folder_tree_LineEdit.text = config.get_value("Settings", "keyword_folder_tree")
 		keyword_texteditor_plugin_LineEdit.text = config.get_value("Settings", "keyword_texteditor_plugin")
 		keyword_todo_plugin_LineEdit.text = config.get_value("Settings", "keyword_todo_plugin")
@@ -121,6 +147,13 @@ func load_settings() -> void:
 		include_help_pages_button.pressed = bool(config.get_value("Settings", "include_help_pages"))
 		adaptive_height_button.pressed = bool(config.get_value("Settings", "adaptive_height"))
 		show_path_for_recent_button.pressed = bool(config.get_value("Settings", "show_path_for_recent"))
+		
+		focus_scenedock.text = config.get_value("Settings", "focus_scene", "S")
+		focus_inspectordock.text = config.get_value("Settings", "focus_inspector", "W")
+		focus_nodedock.text = config.get_value("Settings", "focus_node", "N")
+		focus_filesystemdock.text = config.get_value("Settings", "focus_filesystem", "F")
+		focus_importdock.text = config.get_value("Settings", "focus_import", "I")
+		focus_scripteditor.text = config.get_value("Settings", "focus_scripteditor", "C")
 
 
 func load_default_settings() -> void:
@@ -133,16 +166,21 @@ func load_default_settings() -> void:
 	keyword_all_scenes_LineEdit.text = "as "
 	keyword_all_scripts_LineEdit.text = "ac "
 	keyword_all_open_scenes_LineEdit.text = "s "
-	keyword_select_node_LineEdit.text = "n "
-	keyword_editor_settings_LineEdit.text = "sett "
-	keyword_set_inspector_LineEdit.text = "set "
+	keyword_editor_settings_LineEdit.text = "set "
 	keyword_folder_tree_LineEdit.text = "res"
-	keyword_texteditor_plugin_LineEdit.text = "file "
-	keyword_todo_plugin_LineEdit.text = "todo "
+	keyword_texteditor_plugin_LineEdit.text = "f "
+	keyword_todo_plugin_LineEdit.text = "td "
 	hide_script_panel_button.pressed = false
 	include_help_pages_button.pressed = false
 	adaptive_height_button.pressed = true
 	show_path_for_recent_button.pressed = false
+	
+	focus_scenedock.text = "S"
+	focus_inspectordock.text = "W"
+	focus_nodedock.text = "N"
+	focus_filesystemdock.text = "F"
+	focus_importdock.text = "I"
+	focus_scripteditor.text = "C"
 
 
 func save_settings() -> void:
@@ -156,9 +194,7 @@ func save_settings() -> void:
 	config.set_value("Settings", "keyword_all_scenes", keyword_all_scenes_LineEdit.text)
 	config.set_value("Settings", "keyword_all_scripts", keyword_all_scripts_LineEdit.text)
 	config.set_value("Settings", "keyword_all_open_scenes", keyword_all_open_scenes_LineEdit.text)
-	config.set_value("Settings", "keyword_select_node", keyword_select_node_LineEdit.text)
 	config.set_value("Settings", "keyword_editor_settings", keyword_editor_settings_LineEdit.text)
-	config.set_value("Settings", "keyword_set_inspector", keyword_set_inspector_LineEdit.text)
 	config.set_value("Settings", "keyword_folder_tree", keyword_folder_tree_LineEdit.text)
 	config.set_value("Settings", "keyword_texteditor_plugin", keyword_texteditor_plugin_LineEdit.text)
 	config.set_value("Settings", "keyword_todo_plugin", keyword_todo_plugin_LineEdit.text)
@@ -166,4 +202,11 @@ func save_settings() -> void:
 	config.set_value("Settings", "include_help_pages", include_help_pages_button.pressed if include_help_pages_button.pressed else "")
 	config.set_value("Settings", "adaptive_height", adaptive_height_button.pressed if adaptive_height_button.pressed else "")
 	config.set_value("Settings", "show_path_for_recent", show_path_for_recent_button.pressed if show_path_for_recent_button.pressed else "")
+	
+	config.set_value("Settings", "focus_scene", focus_scenedock.text)
+	config.set_value("Settings", "focus_inspector", focus_inspectordock.text)
+	config.set_value("Settings", "focus_node", focus_nodedock.text)
+	config.set_value("Settings", "focus_filesystem", focus_filesystemdock.text)
+	config.set_value("Settings", "focus_import", focus_importdock.text)
+	config.set_value("Settings", "focus_scripteditor", focus_scripteditor.text)
 	config.save("user://command_palette_settings.cfg")
