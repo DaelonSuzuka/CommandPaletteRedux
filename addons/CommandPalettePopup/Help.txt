@@ -11,17 +11,17 @@ Starting the search_string with... (pay attention to the spaces):
 [color=aqua]%s [/color] will list the methods of the current script with the line number. Activating the method will jump to that line in the script.
 
 While the CommandPalette is open (and no search_string is applied) pressing Control+...
-[color=aqua]%s[/color] will focus the SceneDock.
+[color=aqua]%s[/color] will focus the SceneTreeDock.
 [color=aqua]%s[/color] will focus the InspectorDock.
 [color=aqua]%s[/color] will focus the NodeDock.
 [color=aqua]%s[/color] will focus the FileSystemDock.
 [color=aqua]%s[/color] will focus the ImportDock.
 [color=aqua]%s[/color] will focus the ScriptEditor. This is needed because F3 will not focus the ScriptEditor, if the ScriptEditor is already open (another workaround is to switch to another main view and then pressing F3 again). 
-Example use case: opening the CommandPallete with Ctrl+E (default shortcut) and then while holding Ctrl pressing [color=aqua]%s[/color] is a quick way to focus the SceneTreeDock without your mouse.
+Example use case: opening the CommandPalette with Ctrl+E (default shortcut) and then while holding Ctrl pressing [color=aqua]%s[/color] is a quick way to focus the SceneTreeDock without your mouse.
 
 Ending the search_string with  X (space + int), will jump to the X-th item in the list.
 Ending the search_string with [color=aqua]"  "[/color] (double space) while the filter for all files, settings or adding a setting is active, will autocomplete (part) of the path.
-Wildcards (*?) are allowed in the search_string. All spaces in the search_string will be replaced with a *. The ItemList is first populated with matches based on the file/settings name. After that matches based on the complete file/settings paths will be added.
+Wildcards (*?) are allowed in the search_string. The ItemList is first populated with matches based on the file/settings name. After that, matches based on the complete file/settings paths will be added.
 
 Opening a script will switch to the scene tab the script is attached to. It only works, if the script is attached to the scene root. This will give you autocompletion on Node(Path)s and their methods.
 
