@@ -17,6 +17,7 @@ While the CommandPalette is open (and no search_string is applied) pressing Cont
 [color=aqua]%s[/color] will focus the FileSystemDock.
 [color=aqua]%s[/color] will focus the ImportDock.
 [color=aqua]%s[/color] will focus the ScriptEditor. This is needed because F3 will not focus the ScriptEditor, if the ScriptEditor is already open (another workaround is to switch to another main view and then pressing F3 again). 
+[color=aqua]%s[/color] will toggle the Output panel.
 Example use case: opening the CommandPalette with Ctrl+E (default shortcut) and then while holding Ctrl pressing [color=aqua]%s[/color] is a quick way to focus the SceneTreeDock without your mouse.
 
 Ending the search_string with  X (space + int), will jump to the X-th item in the list.

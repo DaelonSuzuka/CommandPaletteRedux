@@ -694,7 +694,7 @@ func _build_help_page() -> void:
 			palette_settings.keyword_editor_settings_LineEdit.text, palette_settings.keyword_folder_tree_LineEdit.text, \
 			palette_settings.keyword_goto_line_LineEdit.text, palette_settings.keyword_goto_method_LineEdit.text, \
 			palette_settings.focus_scenedock.text, palette_settings.focus_inspectordock.text, palette_settings.focus_nodedock.text, \
-			palette_settings.focus_filesystemdock.text, palette_settings.focus_importdock.text, palette_settings.focus_scripteditor.text, palette_settings.focus_scenedock.text, \
+			palette_settings.focus_filesystemdock.text, palette_settings.focus_importdock.text, palette_settings.focus_scripteditor.text, palette_settings.focus_output.text, palette_settings.focus_scenedock.text, \
 			palette_settings.keyword_texteditor_plugin_LineEdit.text, palette_settings.keyword_todo_plugin_LineEdit.text]
 	file.close()
 
