@@ -146,7 +146,7 @@ func load_settings() -> void:
 		show_path_for_recent_button.pressed = bool(config.get_value("Settings", "show_path_for_recent"))
 		
 		focus_scenedock.text = config.get_value("Settings", "focus_scene", "S")
-		focus_inspectordock.text = config.get_value("Settings", "focus_inspector", "W")
+		focus_inspectordock.text = config.get_value("Settings", "focus_inspector", "R")
 		focus_nodedock.text = config.get_value("Settings", "focus_node", "N")
 		focus_filesystemdock.text = config.get_value("Settings", "focus_filesystem", "F")
 		focus_importdock.text = config.get_value("Settings", "focus_import", "I")
@@ -174,7 +174,7 @@ func load_default_settings() -> void:
 	show_path_for_recent_button.pressed = false
 	
 	focus_scenedock.text = "S"
-	focus_inspectordock.text = "W"
+	focus_inspectordock.text = "R"
 	focus_nodedock.text = "N"
 	focus_filesystemdock.text = "F"
 	focus_importdock.text = "I"
