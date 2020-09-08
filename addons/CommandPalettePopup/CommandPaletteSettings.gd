@@ -37,6 +37,8 @@ onready var node_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusNo
 onready var filesystem_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusFileSystem/EditButton5
 onready var import_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusImport/EditButton6
 onready var scripteditor_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusScriptEditor/EditButton7
+onready var output_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusOutput/EditButton8
+onready var focus_output := $MarginContainer/VBoxContainer/SettingsVB/FocusOutput/LineEdit
 var currently_edited_shortcut # edit button for setting the key shortcuts
 
 
@@ -45,18 +47,13 @@ func _ready() -> void:
 	save_button.icon = get_icon("Save", "EditorIcons")
 	cancel_button.icon = get_icon("Close", "EditorIcons")
 	defaults_button.icon = get_icon("Reload", "EditorIcons")
-	shortcut_edit_button.icon = get_icon("Edit", "EditorIcons")
-	scenedock_editbutton.icon = get_icon("Edit", "EditorIcons")
-	inspector_editbutton.icon = get_icon("Edit", "EditorIcons")
-	node_editbutton.icon = get_icon("Edit", "EditorIcons")
-	filesystem_editbutton.icon = get_icon("Edit", "EditorIcons")
-	import_editbutton.icon = get_icon("Edit", "EditorIcons")
-	scripteditor_editbutton.icon = get_icon("Edit", "EditorIcons")
 	shortcut_file_dialog.connect("hide", self, "_on_EnterShortcutPopup_popup_hide") # connection via GUI didn't work
 	shortcut_file_dialog.connect("modal_closed", self, "_on_EnterShortcutPopup_popup_hide") # connection via GUI didn't work
 	
-	for button in [shortcut_edit_button, scenedock_editbutton, inspector_editbutton, node_editbutton, filesystem_editbutton, import_editbutton, scripteditor_editbutton]:
+	for button in [shortcut_edit_button, scenedock_editbutton, inspector_editbutton, node_editbutton, filesystem_editbutton, \
+			import_editbutton, scripteditor_editbutton, output_editbutton]:
 		button.connect("pressed", self, "_on_ShotcutEditButton_pressed", [button])
+		button.icon = get_icon("Edit", "EditorIcons")
 
 
 func _unhandled_key_input(event: InputEventKey) -> void:
@@ -153,7 +150,8 @@ func load_settings() -> void:
 		focus_nodedock.text = config.get_value("Settings", "focus_node", "N")
 		focus_filesystemdock.text = config.get_value("Settings", "focus_filesystem", "F")
 		focus_importdock.text = config.get_value("Settings", "focus_import", "I")
-		focus_scripteditor.text = config.get_value("Settings", "focus_scripteditor", "C")
+		focus_scripteditor.text = config.get_value("Settings", "focus_scripteditor", "Space")
+		focus_output.text = config.get_value("Settings", "focus_output", "C")
 
 
 func load_default_settings() -> void:
@@ -180,7 +178,8 @@ func load_default_settings() -> void:
 	focus_nodedock.text = "N"
 	focus_filesystemdock.text = "F"
 	focus_importdock.text = "I"
-	focus_scripteditor.text = "C"
+	focus_scripteditor.text = "Space"
+	focus_output.text = "C"
 
 
 func save_settings() -> void:
@@ -209,4 +208,5 @@ func save_settings() -> void:
 	config.set_value("Settings", "focus_filesystem", focus_filesystemdock.text)
 	config.set_value("Settings", "focus_import", focus_importdock.text)
 	config.set_value("Settings", "focus_scripteditor", focus_scripteditor.text)
+	config.set_value("Settings", "focus_output", focus_output.text)
 	config.save("user://command_palette_settings.cfg")

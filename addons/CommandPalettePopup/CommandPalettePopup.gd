@@ -115,6 +115,14 @@ func _unhandled_key_input(event: InputEventKey) -> void:
 			INTERFACE.set_main_screen_editor("Script")
 			UTIL.get_current_script_texteditor(EDITOR).grab_focus()
 		
+		# open output
+		elif event.as_text() == "Control+" + palette_settings.focus_output.text:
+			yield(get_tree(), "idle_frame") # to prevent other shortcut functionalities
+			hide()
+			var bottom_panel : VBoxContainer = BASE_CONTROL_VBOX.get_child(1).get_child(1).get_child(1).get_child(0).get_child(0).get_child(1).get_child(0)
+			var outputButton : ToolButton = bottom_panel.get_child(bottom_panel.get_child_count() - 1).get_child(0).get_child(0)
+			outputButton.emit_signal("toggled", !outputButton.pressed)
+		
 		# switch to last file
 		elif event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text:
 			_switch_to_recent_file()
@@ -210,7 +218,7 @@ func _on_AddButton_pressed() -> void:
 
 
 func _on_SettingsButton_pressed() -> void:
-	palette_settings.popup_centered(Vector2(1000, 800))
+	palette_settings.popup_centered(Vector2(1000, 850))
 
 
 func _on_ContextButton_pressed() -> void:
