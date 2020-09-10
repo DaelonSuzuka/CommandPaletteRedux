@@ -5,10 +5,10 @@
 **Features. Use your keyboad to**:
 
 - Open any file. Filter by type or name. 
-- Focus Godot's dock with keyboard shortcuts.
+- Focus Godot's dock with keyboard shortcuts and navigate the SceneTreeDock with your keyboard.
 - Edit general Project/Editor settings. Add new Project settings (kinda barebones atm).
 - Traverse the file tree with autocompletion on paths (list all files and folders in a given path; see preview.gif).
-- Use the context menu for the FileSystemDock and script panel. -- experimental. Basically... I just simulate a right click at a specific position.
+- Use the context menu for the FileSystemDock, SceneTreeDock and script list. -- experimental. Basically... I just simulate a right click at a specific position.
 - Go to line.
 - Go to method.
 - Quickly switch to the last file opened.
@@ -38,8 +38,9 @@ Either download it from the official Godot AssetLib (within Godot itself) or dow
 **Changelog for 1.6.0**:
 
 - removed ability to focus inspector properties and SceneTree options. Instead added shortcuts to focus Godot's built-in docks with the keyboard.
+- removed context menu button and added it as a keyboard shortcut (by default Ctrl+C when the plugin is visible)
 - updated readme/help pages and preview images accordingly
-- bugfix: wrong sorting of ItemList and other minor stuff
+- bugfix: wrong sorting of ItemList, context menu no working when there was a scrollbar and other minor stuff
 
 **Changelog for 1.5.1**:
 

@@ -2,7 +2,7 @@
 
 [ext_resource path="res://addons/CommandPalettePopup/CommandPaletteSettings.gd" type="Script" id=1]
 
-[sub_resource type="Image" id=3]
+[sub_resource type="Image" id=1]
 data = {
 "data": PoolByteArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ),
 "format": "LumAlpha8",
@@ -14,7 +14,7 @@ data = {
 [sub_resource type="ImageTexture" id=2]
 flags = 4
 flags = 4
-image = SubResource( 3 )
+image = SubResource( 1 )
 size = Vector2( 16, 16 )
 
 [node name="CommandPaletteSettings" type="WindowDialog"]
@@ -42,47 +42,46 @@ __meta__ = {
 }
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
-margin_right = 924.0
-margin_bottom = 758.0
+margin_right = 1820.0
+margin_bottom = 1110.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="SettingsVB" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
-margin_right = 924.0
-margin_bottom = 732.0
+margin_right = 1820.0
+margin_bottom = 788.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="HideScriptPanelOnStart" type="CheckButton" parent="MarginContainer/VBoxContainer/SettingsVB"]
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 40.0
-pressed = true
 text = "Hide script panel (list of open scripts, help pages and methods) on start"
 
 [node name="IncludeHelpPages" type="CheckButton" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 44.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 84.0
 text = "Include help pages in open script list (of this plugin)"
 
 [node name="AdaptiveHeight" type="CheckButton" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 88.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 128.0
 pressed = true
 text = "Adaptive height"
 
 [node name="ShowPathForRecentFiles" type="CheckButton" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 132.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 172.0
 text = "Show file path for recent files"
 
 [node name="KeyboardShortcut" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 176.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 200.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeyboardShortcut"]
@@ -93,8 +92,8 @@ text = "Keyboard shortcut"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeyboardShortcut"]
-margin_left = 424.0
-margin_right = 891.0
+margin_left = 1320.0
+margin_right = 1787.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 467, 0 )
 focus_mode = 0
@@ -106,15 +105,15 @@ shortcut_keys_enabled = false
 selecting_enabled = false
 
 [node name="EditButton" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/KeyboardShortcut"]
-margin_left = 895.0
-margin_right = 924.0
+margin_left = 1791.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="WindowWidth" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 204.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 228.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/WindowWidth"]
@@ -125,8 +124,8 @@ text = "Window width"
 valign = 1
 
 [node name="SpinBox" type="SpinBox" parent="MarginContainer/VBoxContainer/SettingsVB/WindowWidth"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -135,7 +134,7 @@ value = 1000.0
 
 [node name="WindowMaxHeight" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 232.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 256.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/WindowMaxHeight"]
@@ -146,8 +145,8 @@ text = "Window max height"
 valign = 1
 
 [node name="SpinBox" type="SpinBox" parent="MarginContainer/VBoxContainer/SettingsVB/WindowMaxHeight"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -156,7 +155,7 @@ value = 920.0
 
 [node name="KeywordAllFiles" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 260.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 284.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordAllFiles"]
@@ -167,8 +166,8 @@ text = "Keyword all files"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordAllFiles"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -176,7 +175,7 @@ text = "a "
 
 [node name="KeywordAllScripts" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 288.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 312.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordAllScripts"]
@@ -187,8 +186,8 @@ text = "Keyword all scripts"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordAllScripts"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -196,7 +195,7 @@ text = "ac "
 
 [node name="KeywordAllScenes" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 316.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 340.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordAllScenes"]
@@ -207,8 +206,8 @@ text = "Keyword all scenes"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordAllScenes"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -216,7 +215,7 @@ text = "as "
 
 [node name="KeywordOpenScenes" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 344.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 368.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordOpenScenes"]
@@ -227,8 +226,8 @@ text = "Keyword open scenes"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordOpenScenes"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -236,7 +235,7 @@ text = "s "
 
 [node name="KeywordSettings" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 372.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 396.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordSettings"]
@@ -247,8 +246,8 @@ text = "Keyword set project/editor settings"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordSettings"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -256,7 +255,7 @@ text = "set "
 
 [node name="KeywordFileTree" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 400.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 424.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordFileTree"]
@@ -267,8 +266,8 @@ text = "Keyword file tree"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordFileTree"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -276,7 +275,7 @@ text = "res"
 
 [node name="KeywordGotoLine" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 428.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 452.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordGotoLine"]
@@ -287,8 +286,8 @@ text = "Keyword goto line"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordGotoLine"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -296,7 +295,7 @@ text = "g "
 
 [node name="KeywordGotoMethod" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 456.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 480.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordGotoMethod"]
@@ -307,8 +306,8 @@ text = "Keyword goto method"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordGotoMethod"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -316,7 +315,7 @@ text = "m "
 
 [node name="KeywordTexteditorPlugin" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 484.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 508.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordTexteditorPlugin"]
@@ -327,8 +326,8 @@ text = "Keyword texteditor plugin (by fenix)"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordTexteditorPlugin"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -336,7 +335,7 @@ text = "f "
 
 [node name="KeywordTODOPlugin" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 512.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 536.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordTODOPlugin"]
@@ -347,8 +346,8 @@ text = "Keyword todo plugin (by need12648430)"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordTODOPlugin"]
-margin_left = 424.0
-margin_right = 924.0
+margin_left = 1320.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
@@ -356,7 +355,7 @@ text = "td "
 
 [node name="FocusScene" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 540.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 564.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusScene"]
@@ -367,25 +366,25 @@ text = "Focus SceneDock: Control +"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/FocusScene"]
-margin_left = 424.0
-margin_right = 891.0
+margin_left = 1320.0
+margin_right = 1787.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 467, 0 )
 focus_mode = 0
 size_flags_horizontal = 10
-text = "S"
+text = "Q"
 editable = false
 
 [node name="EditButton2" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/FocusScene"]
-margin_left = 895.0
-margin_right = 924.0
+margin_left = 1791.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="FocusInspector" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 568.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 592.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusInspector"]
@@ -396,8 +395,8 @@ text = "Focus InspectorDock: Control +"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/FocusInspector"]
-margin_left = 424.0
-margin_right = 891.0
+margin_left = 1320.0
+margin_right = 1787.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 467, 0 )
 focus_mode = 0
@@ -406,15 +405,15 @@ text = "R"
 editable = false
 
 [node name="EditButton3" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/FocusInspector"]
-margin_left = 895.0
-margin_right = 924.0
+margin_left = 1791.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="FocusNode" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 596.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 620.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusNode"]
@@ -425,8 +424,8 @@ text = "Focus NodeDock: Control +"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/FocusNode"]
-margin_left = 424.0
-margin_right = 891.0
+margin_left = 1320.0
+margin_right = 1787.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 467, 0 )
 focus_mode = 0
@@ -435,15 +434,15 @@ text = "N"
 editable = false
 
 [node name="EditButton4" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/FocusNode"]
-margin_left = 895.0
-margin_right = 924.0
+margin_left = 1791.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="FocusFileSystem" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 624.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 648.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusFileSystem"]
@@ -454,8 +453,8 @@ text = "Focus FileSystemDock: Control +"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/FocusFileSystem"]
-margin_left = 424.0
-margin_right = 891.0
+margin_left = 1320.0
+margin_right = 1787.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 467, 0 )
 focus_mode = 0
@@ -464,15 +463,15 @@ text = "F"
 editable = false
 
 [node name="EditButton5" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/FocusFileSystem"]
-margin_left = 895.0
-margin_right = 924.0
+margin_left = 1791.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="FocusImport" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 652.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 676.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusImport"]
@@ -483,8 +482,8 @@ text = "Focus ImportDock: Control +"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/FocusImport"]
-margin_left = 424.0
-margin_right = 891.0
+margin_left = 1320.0
+margin_right = 1787.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 467, 0 )
 focus_mode = 0
@@ -493,15 +492,15 @@ text = "I"
 editable = false
 
 [node name="EditButton6" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/FocusImport"]
-margin_left = 895.0
-margin_right = 924.0
+margin_left = 1791.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="FocusScriptEditor" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 680.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 704.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusScriptEditor"]
@@ -512,8 +511,8 @@ text = "Focus ScriptEditor: Control +"
 valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/FocusScriptEditor"]
-margin_left = 424.0
-margin_right = 891.0
+margin_left = 1320.0
+margin_right = 1787.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 467, 0 )
 focus_mode = 0
@@ -522,27 +521,85 @@ text = "Space"
 editable = false
 
 [node name="EditButton7" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/FocusScriptEditor"]
-margin_left = 895.0
-margin_right = 924.0
+margin_left = 1791.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
-[node name="FocusOutput" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
+[node name="MoveNodeUp" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 708.0
-margin_right = 924.0
+margin_right = 1820.0
 margin_bottom = 732.0
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusOutput"]
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/MoveNodeUp"]
 margin_top = 5.0
-margin_right = 152.0
+margin_right = 220.0
 margin_bottom = 19.0
-text = "Focus Output: Control +"
+text = "Move node selection up: Control +"
 valign = 1
 
-[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/FocusOutput"]
-margin_left = 424.0
-margin_right = 891.0
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/MoveNodeUp"]
+margin_left = 1320.0
+margin_right = 1787.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 467, 0 )
+focus_mode = 0
+size_flags_horizontal = 10
+text = "W"
+editable = false
+
+[node name="EditButton8" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/MoveNodeUp"]
+margin_left = 1791.0
+margin_right = 1820.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 29, 0 )
+icon = SubResource( 2 )
+
+[node name="MoveNodeDown" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
+margin_top = 736.0
+margin_right = 1820.0
+margin_bottom = 760.0
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/MoveNodeDown"]
+margin_top = 5.0
+margin_right = 238.0
+margin_bottom = 19.0
+text = "Move node selection down: Control +"
+valign = 1
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/MoveNodeDown"]
+margin_left = 1320.0
+margin_right = 1787.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 467, 0 )
+focus_mode = 0
+size_flags_horizontal = 10
+text = "S"
+editable = false
+
+[node name="EditButton9" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/MoveNodeDown"]
+margin_left = 1791.0
+margin_right = 1820.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 29, 0 )
+icon = SubResource( 2 )
+
+[node name="ContextMenu" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
+margin_top = 764.0
+margin_right = 1820.0
+margin_bottom = 788.0
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/ContextMenu"]
+margin_top = 5.0
+margin_right = 155.0
+margin_bottom = 19.0
+text = "Context Menu: Control +"
+valign = 1
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/ContextMenu"]
+margin_left = 1320.0
+margin_right = 1787.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 467, 0 )
 focus_mode = 0
@@ -550,18 +607,18 @@ size_flags_horizontal = 10
 text = "C"
 editable = false
 
-[node name="EditButton8" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/FocusOutput"]
-margin_left = 895.0
-margin_right = 924.0
+[node name="EditButton10" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/ContextMenu"]
+margin_left = 1791.0
+margin_right = 1820.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="ButtonsHB" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
-margin_left = 329.0
-margin_top = 736.0
-margin_right = 594.0
-margin_bottom = 758.0
+margin_left = 777.0
+margin_top = 1088.0
+margin_right = 1042.0
+margin_bottom = 1110.0
 size_flags_horizontal = 4
 size_flags_vertical = 10
 custom_constants/separation = 25
@@ -613,10 +670,10 @@ __meta__ = {
 }
 
 [node name="ShortcutLabel" type="Label" parent="EnterShortcutPopup/MarginContainer"]
-margin_left = 472.0
-margin_top = 325.0
-margin_right = 552.0
-margin_bottom = 339.0
+margin_left = 920.0
+margin_top = 565.0
+margin_right = 1000.0
+margin_bottom = 579.0
 size_flags_horizontal = 6
 size_flags_vertical = 6
 text = "Press keys..."

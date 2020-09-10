@@ -10,10 +10,9 @@ onready var info_box = $PaletteMarginContainer/VBoxContainer/MarginContainer/Tab
 onready var tabs = $PaletteMarginContainer/VBoxContainer/MarginContainer/TabContainer
 enum TABS {ITEM_LIST, INFO_BOX}
 onready var copy_button = $PaletteMarginContainer/VBoxContainer/SearchFilter/CopyButton
-onready var current_label = $PaletteMarginContainer/VBoxContainer/HSplitContainer/CurrentLabel # meta data "Path" saves file path, "Help" saves name of doc pages
+onready var current_label = $PaletteMarginContainer/VBoxContainer/HSplitContainer/CurrentLabel # meta data "Path" saves file path, "Help" saves name of doc
 onready var last_label = $PaletteMarginContainer/VBoxContainer/HSplitContainer/LastLabel
 onready var add_button = $PaletteMarginContainer/VBoxContainer/SearchFilter/AddButton
-onready var context_button = $PaletteMarginContainer/VBoxContainer/SearchFilter/ContextButton
 onready var switch_button = $PaletteMarginContainer/VBoxContainer/HSplitContainer/SwitchIcon
 onready var settings_button = $PaletteMarginContainer/VBoxContainer/SearchFilter/SettingsButton
 	
@@ -35,6 +34,7 @@ var recent_files_are_updating : bool  = false
 enum FILTER {ALL_FILES, ALL_SCENES, ALL_SCRIPTS, ALL_OPEN_SCENES, ALL_OPEN_SCRIPTS, SETTINGS, GOTO_LINE, GOTO_METHOD, HELP, \
 		TREE_FOLDER, FILEEDITOR, TODO}
 var current_filter : int
+var node_selected := false # node selected via ctrl+up/down
 	
 var INTERFACE : EditorInterface
 var BASE_CONTROL_VBOX : VBoxContainer
@@ -45,6 +45,7 @@ var SCRIPT_PANEL : VSplitContainer
 var SCRIPT_LIST : ItemList
 # 3rd party plugins
 var FILELIST : ItemList
+var t = 0
 
 
 func _ready() -> void:
@@ -56,21 +57,83 @@ func _ready() -> void:
 	filter.right_icon = get_icon("Search", "EditorIcons")
 	copy_button.icon = get_icon("ActionCopy", "EditorIcons")
 	switch_button.icon = get_icon("MirrorX", "EditorIcons")
-	context_button.icon = get_icon("FileList", "EditorIcons")
 	settings_button.icon = get_icon("Tools", "EditorIcons")
+	
+	if BASE_CONTROL_VBOX:
+		# allow search in SceneTreeDock's PopupMenu
+		var scene_dock = UTIL.get_dock("SceneTreeDock", BASE_CONTROL_VBOX)
+		for child in scene_dock.get_children():
+			if child is PopupMenu:
+				child.allow_search = true
+				child.connect("popup_hide", self, "_on_node_and_file_context_menu_hide")
+				break
+		
+		# allow search in FileSystemDock's PopupMenu
+		# FileSystemDock has 2 PopupMenus , so we dont break
+		var filesystemdock = UTIL.get_dock("FileSystemDock", BASE_CONTROL_VBOX)
+		for child in filesystemdock.get_children(): 
+			if child is PopupMenu:
+				child.allow_search = true
+				child.connect("popup_hide", self, "_on_node_and_file_context_menu_hide")
+		
+		# context menu of script panel
+		for child in EDITOR.get_children():
+			if child is PopupMenu:
+				child.allow_search = true
+				child.connect("popup_hide", self, "_on_script_context_menu_hide")
+				break
 
 
 func _unhandled_key_input(event: InputEventKey) -> void:
-	var pressed = true if palette_settings.keyboard_shortcut_LineEdit.text.findn("Tab") != -1 else event.pressed # if keyboard shortcut contains tab, you cannot check pressed state
-	if pressed and visible and not filter.text and filter.has_focus():
+	# if keyboard shortcut contains tab, you cannot check pressed state
+	var pressed = true if palette_settings.keyboard_shortcut_LineEdit.text.findn("Tab") != -1 else event.pressed 
+	if pressed and visible and filter.has_focus():
+		# select next node in scene tree dock
+		if event.as_text() == "Control+" + palette_settings.movedown_lineedit.text:
+			# signal use is mandatory. De/Select methods don't seem to work 
+			var scene_dock = UTIL.get_dock("SceneTreeDock", BASE_CONTROL_VBOX)
+			switch_vis_dock(scene_dock)
+			var tree : Tree = scene_dock.get_child(3).get_child(0)
+			var selected_item : TreeItem = tree.get_selected()
+			if selected_item:
+				tree.emit_signal("multi_selected", selected_item, 0, false)
+				tree.emit_signal("multi_selected", selected_item.get_next_visible(true), 0, true)
+			else:
+				tree.emit_signal("multi_selected", tree.get_root(), 0, true)
+			node_selected = true
+		
+		# select prev node in scene tree dock
+		elif event.as_text() == "Control+" + palette_settings.moveup_lineedit.text:
+			# signal use is mandatory. De/Select methods don't seem to work 
+			var scene_dock = UTIL.get_dock("SceneTreeDock", BASE_CONTROL_VBOX)
+			switch_vis_dock(scene_dock)
+			var tree : Tree = scene_dock.get_child(3).get_child(0)
+			var selected_item : TreeItem = tree.get_selected()
+			if selected_item:
+				tree.emit_signal("multi_selected", selected_item, 0, false)
+				tree.emit_signal("multi_selected", selected_item.get_prev_visible(true), 0, true)
+			else:
+				tree.emit_signal("multi_selected", tree.get_root().get_prev_visible(true), 0, true)
+			node_selected = true
+		
+		elif event.as_text() == "Control+" + palette_settings.context_lineedit.text:
+			if node_selected:
+				_open_context_menu_scenetreedock()
+			elif current_filter == FILTER.ALL_OPEN_SCRIPTS:
+				_open_context_menu_scriptpanel()
+			elif current_filter in [FILTER.ALL_FILES, FILTER.ALL_SCENES, FILTER.ALL_SCRIPTS, FILTER.TREE_FOLDER]:
+				_open_context_menu_filesystemdock()
+		
 		# focus scene tree dock
-		if event.as_text() == "Control+" + palette_settings.focus_scenedock.text:
+		elif event.as_text() == "Control+" + palette_settings.focus_scenedock.text:
 			yield(get_tree(), "idle_frame") # to prevent saving the script/scene
 			hide()
 			var scene_dock = UTIL.get_dock("SceneTreeDock", BASE_CONTROL_VBOX)
 			switch_vis_dock(scene_dock)
 			var filter_lineedit : LineEdit = scene_dock.get_child(0).get_child(2)
-			filter_lineedit.grab_focus()
+			var tree : Tree = scene_dock.get_child(3).get_child(0)
+			var selected_item : TreeItem = tree.get_selected()
+			filter_lineedit.grab_focus() if not selected_item else tree.grab_focus()
 		
 		# focus filesystem dock
 		elif event.as_text() == "Control+" + palette_settings.focus_filesystemdock.text:
@@ -115,14 +178,6 @@ func _unhandled_key_input(event: InputEventKey) -> void:
 			INTERFACE.set_main_screen_editor("Script")
 			UTIL.get_current_script_texteditor(EDITOR).grab_focus()
 		
-		# open output
-		elif event.as_text() == "Control+" + palette_settings.focus_output.text:
-			yield(get_tree(), "idle_frame") # to prevent other shortcut functionalities
-			hide()
-			var bottom_panel : VBoxContainer = BASE_CONTROL_VBOX.get_child(1).get_child(1).get_child(1).get_child(0).get_child(0).get_child(1).get_child(0)
-			var outputButton : ToolButton = bottom_panel.get_child(bottom_panel.get_child_count() - 1).get_child(0).get_child(0)
-			outputButton.emit_signal("toggled", !outputButton.pressed)
-		
 		# switch to last file
 		elif event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text:
 			_switch_to_recent_file()
@@ -131,6 +186,7 @@ func _unhandled_key_input(event: InputEventKey) -> void:
 	elif event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text and pressed:
 		_update_project_settings()
 		_update_popup_list(true)
+		node_selected = false
 
 
 func switch_vis_dock(dock : Node) -> void:
@@ -218,113 +274,183 @@ func _on_AddButton_pressed() -> void:
 
 
 func _on_SettingsButton_pressed() -> void:
-	palette_settings.popup_centered(Vector2(1000, 850))
+	palette_settings.popup_centered(Vector2(1000, 900))
 
 
-func _on_ContextButton_pressed() -> void:
+func _open_context_menu_scriptpanel() -> void:
 	var selection = item_list.get_selected_items()
 	if selection:
-		if current_filter == FILTER.ALL_OPEN_SCRIPTS:
-			if current_main_screen != "Script":
-				INTERFACE.set_main_screen_editor("Script")
-				yield(get_tree(), "idle_frame")
-			script_panel_visible = SCRIPT_PANEL.visible
-			if not script_panel_visible:
-				SCRIPT_PANEL.show()
+		if current_main_screen != "Script":
+			INTERFACE.set_main_screen_editor("Script")
+			yield(get_tree(), "idle_frame")
+		
+		script_panel_visible = SCRIPT_PANEL.visible # saved for later usage
+		if not script_panel_visible: 
+			SCRIPT_PANEL.show()
+		yield(get_tree().create_timer(.01), "timeout")
+		
+		# calc pos of selected item to simulate rmb click
+		var selected_name = item_list.get_item_text(selection[0])
+		var idx = 0
+		while selected_name != SCRIPT_LIST.get_item_text(idx):
+			idx += 1
+			if idx > 200:
+				push_warning("Command Palette error getting script list")
+				return
+		
+		# ensure item is visible in the list; ensure_current_is_visible() doesnt work because there is no selection
+		var vscroll : VScrollBar = SCRIPT_LIST.get_v_scroll()
+		if vscroll.visible:
+			if (idx + 1) * 25 < vscroll.value: # selected item is above currently visible scripts
+				vscroll.value = (idx + 1) * 25 - vscroll.page
+			elif (idx + 1) * 25 > vscroll.value + vscroll.page: # selected item is above currently visible scripts
+				vscroll.value = (idx + 1) * 25 - vscroll.page
+		
+		var pos = Vector2(SCRIPT_LIST.rect_size.x - 25, idx * (24) + 10 - vscroll.value)
+		if selected_name != SCRIPT_LIST.get_item_text(SCRIPT_LIST.get_item_at_position(pos)):
+			push_warning("Command Palette Plugin: Error getting context menu from script list.")
+			return
+		hide()
+		
+		# simulate rmb click on item
+		var simul_rmb = InputEventMouseButton.new()
+		simul_rmb.button_index = BUTTON_RIGHT
+		simul_rmb.pressed = true
+		simul_rmb.position = SCRIPT_LIST.rect_global_position + pos
+		Input.parse_input_event(simul_rmb)
+		for child in EDITOR.get_children():
+			if child is PopupMenu:
+				child.call_deferred("set_position", SCRIPT_LIST.rect_global_position + pos)
+				break
+
+
+# TODO calculation of item pos for splitview with icons
+func _open_context_menu_filesystemdock() -> void:
+	var selection = item_list.get_selected_items()
+	if selection:
+		# get full file path
+		var path : String
+		if current_filter == FILTER.TREE_FOLDER:
+			path = filter.text.substr(palette_settings.keyword_folder_tree_LineEdit.text.length())
+			while path.begins_with("/") or path.begins_with(":"):
+				path.erase(0, 1)
+			if path.count("/") > 0:
+				path = path.rsplit("/", true, 1)[0] + "/"
+				path += item_list.get_item_text(selection[0])
+			else:
+				path = item_list.get_item_text(selection[0])
+			path = "res://" + path.strip_edges()
+		else:
+			path = item_list.get_item_text(selection[0] - 1) + ("/" if not item_list.get_item_text(selection[0] - 1) == "res://" else "") \
+					+ item_list.get_item_text(selection[0])
+		
+		# setup variables
+		var filesystem_dock = UTIL.get_dock("FileSystemDock", BASE_CONTROL_VBOX)
+		var file_tree : Tree
+		var file_list : ItemList
+		var file_split_view : bool
+		for child in filesystem_dock.get_children():
+			if child is VSplitContainer:
+				file_tree = child.get_child(0)
+				file_list = child.get_child(1).get_child(1)
+				file_split_view = child.get_child(1).visible
+		
+		# switch to and show filesystem dock
+		old_dock_tab = filesystem_dock.get_parent().get_current_tab_control()
+		old_dock_tab_was_visible = filesystem_dock.get_parent().visible and filesystem_dock.get_parent().get_parent().visible
+		filesystem_dock.get_parent().current_tab = filesystem_dock.get_index()
+		if not old_dock_tab_was_visible:
+			filesystem_dock.get_parent().show()
+			filesystem_dock.get_parent().get_parent().show()
+			filesystem_dock.get_parent().get_parent().get_parent().show()
 			
-			yield(get_tree().create_timer(.01), "timeout")
+		INTERFACE.select_file(path) # also ensures it's visible
+		yield(get_tree().create_timer(.01), "timeout")
+		
+		var pos = Vector2(filesystem_dock.rect_size.x / 2 + 50, 0) 
+		# file selected in split view
+		if (file_split_view and current_filter != FILTER.TREE_FOLDER) or \
+				(current_filter == FILTER.TREE_FOLDER and not item_list.get_item_icon(selection[0])): # get_item_icon means selected item is a folder
+			# calc pos of selected item to simulate rmb click
 			var selected_name = item_list.get_item_text(selection[0])
-			var pos = Vector2(15, 5)
-			while selected_name != SCRIPT_LIST.get_item_text(SCRIPT_LIST.get_item_at_position(pos)):
-				pos.y += 5
-				if pos.y > OS.get_screen_size().y:
-					push_warning("Command Palette Plugin: Error getting context menu from script list.")
+			var idx = 0
+			while selected_name != file_list.get_item_text(idx):
+				idx += 1
+				if idx > 200:
+					push_warning("Command Palette error getting file list")
 					return
-			pos.y += 5
-			hide()
-			var simul_rmb = InputEventMouseButton.new()
-			simul_rmb.button_index = BUTTON_RIGHT
-			simul_rmb.pressed = true
-			simul_rmb.position = SCRIPT_LIST.rect_global_position + pos
-			Input.parse_input_event(simul_rmb)
-			for child in EDITOR.get_children():
+			pos.y = (idx) * (24) + 16 - file_list.get_v_scroll().value
+			# call and set pos of popupmenu
+			file_list.emit_signal("item_rmb_selected", file_list.get_selected_items()[0], pos)
+			for child in filesystem_dock.get_children():
 				if child is PopupMenu:
-					child.allow_search = true
-					yield(get_tree(), "idle_frame")
-					child.call_deferred("set_position", SCRIPT_LIST.rect_global_position + Vector2(SCRIPT_LIST.rect_size.x - 25, pos.y))
-					if not child.is_connected("popup_hide", self, "_on_script_context_menu_hide"):
-						child.connect("popup_hide", self, "_on_script_context_menu_hide")
+					child.call_deferred("set_position", (file_list.rect_global_position + pos))
 					break
 		
-		elif current_filter in [FILTER.ALL_FILES, FILTER.ALL_SCENES, FILTER.ALL_SCRIPTS, FILTER.TREE_FOLDER]:
-			var path : String
-			if current_filter == FILTER.TREE_FOLDER:
-				path = filter.text.substr(palette_settings.keyword_folder_tree_LineEdit.text.length())
-				while path.begins_with("/") or path.begins_with(":"):
-					path.erase(0, 1)
-				if path.count("/") > 0:
-					path = path.rsplit("/", true, 1)[0] + "/"
-					path += item_list.get_item_text(selection[0])
-				else:
-					path = item_list.get_item_text(selection[0])
-				path = "res://" + path.strip_edges()
-			else:
-				path = item_list.get_item_text(selection[0] - 1) + ("/" if not item_list.get_item_text(selection[0] - 1) == "res://" else "") \
-						+ item_list.get_item_text(selection[0])
-			
-			var filesystem_dock = UTIL.get_dock("FileSystemDock", BASE_CONTROL_VBOX)
-			var file_tree : Tree
-			var file_list : ItemList
-			var file_split_view : bool
-			for child in filesystem_dock.get_children():
-				if child is VSplitContainer:
-					file_tree = child.get_child(0)
-					file_list = child.get_child(1).get_child(1)
-					file_split_view = child.get_child(1).visible
-			old_dock_tab = filesystem_dock.get_parent().get_current_tab_control()
-			old_dock_tab_was_visible = filesystem_dock.get_parent().visible and filesystem_dock.get_parent().get_parent().visible
-			var i = 0
-			while filesystem_dock.get_parent().get_current_tab_control() != filesystem_dock:
-				filesystem_dock.get_parent().current_tab = i
-				i += 1
-			INTERFACE.select_file(path)
-			if not old_dock_tab_was_visible:
-				filesystem_dock.get_parent().show()
-				filesystem_dock.get_parent().get_parent().show()
-				filesystem_dock.get_parent().get_parent().get_parent().show()
-			yield(get_tree().create_timer(.01), "timeout")
-			var pos = Vector2(30, 5) # x = 30 so we don't click the folding arrow
-			if (file_split_view and current_filter != FILTER.TREE_FOLDER) or (current_filter == FILTER.TREE_FOLDER and not item_list.get_item_icon(selection[0])): # icon => folder
-				while path.get_file() != file_list.get_item_text(file_list.get_item_at_position(pos)):
-					pos.x = 5
-					pos.y += 5
-					if pos.y > OS.get_screen_size().y:
-						push_warning("Command Palette Plugin: Error getting context menu from FileSystemDock.")
-						return
-				pos.y += 5
-				hide()
-				file_list.emit_signal("item_rmb_selected", file_list.get_selected_items()[0], pos)
-			
-			else:
-				while path.get_file() != file_tree.get_item_at_position(pos).get_text(0):
-					pos.x = 5
-					pos.y += 5
-					if pos.y > OS.get_screen_size().y:
-						push_warning("Command Palette Plugin: Error getting context menu from FileSystemDock.")
-						return
-				pos.y += 5
-				hide()
-				file_tree.emit_signal("item_rmb_selected", pos)
-			
+		# folders in split view or everything in non-split view
+		else:
+			# calc pos of item 
+			var item : TreeItem = file_tree.get_root()
+			var idx = 0
+			while item != file_tree.get_next_selected(file_tree.get_root()):
+				item = item.get_next_visible()
+				idx += 1
+				if idx > 200:
+					push_warning("Command Palette error getting file list")
+					return
+			pos.y = (idx -1) * 26 + 16 - file_tree.get_scroll().y
+			# call and set pos of popupmenu
+			file_tree.emit_signal("item_rmb_selected", pos)
 			for child in filesystem_dock.get_children():
 				if child is PopupMenu:
-					child.allow_search = true
-					child.call_deferred("set_position", (file_list.rect_global_position if (file_split_view and current_filter != FILTER.TREE_FOLDER) or \
-							(current_filter == FILTER.TREE_FOLDER and not item_list.get_item_icon(selection[0])) else \
-							file_tree.rect_global_position) + Vector2(0, pos.y + 25))
-					if not child.is_connected("popup_hide", self, "_on_node_and_file_context_menu_hide"):
-						child.connect("popup_hide", self, "_on_node_and_file_context_menu_hide")
+					child.call_deferred("set_position", (file_tree.rect_global_position + pos))
 					break
+		hide()
+
+
+func _open_context_menu_scenetreedock() -> void:
+	var selection = item_list.get_selected_items()
+	if selection:
+		if not current_main_screen in ["2D", "3D"]:
+			INTERFACE.set_main_screen_editor("3D") if INTERFACE.get_edited_scene_root() is Spatial else INTERFACE.set_main_screen_editor("2D")
+			yield(get_tree(), "idle_frame")
+			
+		# switch to SceneTreeDock and show it if hidden 
+		# technically the switching is no longer needed since this method requires the Ctrl+Up input before
+		var scene_tree_dock = UTIL.get_dock("SceneTreeDock", BASE_CONTROL_VBOX)
+		old_dock_tab = scene_tree_dock.get_parent().get_current_tab_control()
+		old_dock_tab_was_visible = scene_tree_dock.get_parent().visible and scene_tree_dock.get_parent().get_parent().visible
+		scene_tree_dock.get_parent().current_tab = scene_tree_dock.get_index()
+		if not old_dock_tab_was_visible:
+			scene_tree_dock.get_parent().show()
+			scene_tree_dock.get_parent().get_parent().show()
+			scene_tree_dock.get_parent().get_parent().get_parent().show()
+		
+		# get pos of selected item
+		var scene_tree : Tree = scene_tree_dock.get_child(3).get_child(0)
+		var item : TreeItem = scene_tree.get_root()
+		var idx = 0
+		while item != scene_tree.get_selected():
+			item = item.get_next_visible()
+			idx += 1
+			if idx > 200:
+				push_warning("Command Palette error getting node list")
+				return
+		# x-coord from right minus a certain number to avoid vis/script icons...
+		# ensure item is visible in the tree; ensure_current_is_visible() doesnt work
+		var pos = Vector2(scene_tree.rect_size.x - 150, idx * 26 + 16 - scene_tree.get_scroll().y) 
+		hide()
+		
+		# simulate rmb click on item
+		var simul_rmb = InputEventMouseButton.new()
+		simul_rmb.button_index = BUTTON_RIGHT
+		simul_rmb.pressed = true
+		simul_rmb.position = scene_tree.rect_global_position + pos
+		Input.parse_input_event(simul_rmb)
+		for child in scene_tree_dock.get_children():
+			if child is PopupMenu:
+				child.set_position(scene_tree.rect_global_position + pos)
+				break
 
 
 func _on_script_context_menu_hide() -> void:
@@ -333,10 +459,7 @@ func _on_script_context_menu_hide() -> void:
 
 
 func _on_node_and_file_context_menu_hide() -> void:
-	var i = 0
-	while old_dock_tab != old_dock_tab.get_parent().get_current_tab_control():
-		old_dock_tab.get_parent().current_tab = i
-		i += 1
+	old_dock_tab.get_parent().current_tab = old_dock_tab.get_index()
 	if not old_dock_tab_was_visible:
 		old_dock_tab.get_parent().hide()
 		old_dock_tab.get_parent().get_parent().hide()
@@ -694,7 +817,8 @@ func _build_help_page() -> void:
 			palette_settings.keyword_editor_settings_LineEdit.text, palette_settings.keyword_folder_tree_LineEdit.text, \
 			palette_settings.keyword_goto_line_LineEdit.text, palette_settings.keyword_goto_method_LineEdit.text, \
 			palette_settings.focus_scenedock.text, palette_settings.focus_inspectordock.text, palette_settings.focus_nodedock.text, \
-			palette_settings.focus_filesystemdock.text, palette_settings.focus_importdock.text, palette_settings.focus_scripteditor.text, palette_settings.focus_output.text, palette_settings.focus_scenedock.text, \
+			palette_settings.focus_filesystemdock.text, palette_settings.focus_importdock.text, palette_settings.focus_scripteditor.text, palette_settings.moveup_lineedit.text, \
+			palette_settings.movedown_lineedit.text, palette_settings.context_lineedit.text, palette_settings.focus_scenedock.text, \
 			palette_settings.keyword_texteditor_plugin_LineEdit.text, palette_settings.keyword_todo_plugin_LineEdit.text]
 	file.close()
 
@@ -984,7 +1108,6 @@ func _setup_buttons() -> void:
 			copy_button.visible = true
 			copy_button.text = "Copy File Path"
 			add_button.visible = false
-			context_button.visible = true if current_filter != FILTER.ALL_OPEN_SCENES else false
 		
 		FILTER.SETTINGS:
 			copy_button.visible = true
@@ -992,13 +1115,12 @@ func _setup_buttons() -> void:
 			if current_filter == FILTER.SETTINGS:
 				add_button.visible = true
 				add_button.icon = get_icon("MultiEdit", "EditorIcons")
-			context_button.visible = false
 		FILTER.GOTO_LINE, FILTER.GOTO_METHOD, FILTER.HELP, FILTER.FILEEDITOR, FILTER.TODO:
-			for button in [add_button, copy_button, context_button]:
+			for button in [add_button, copy_button]:
 				button.visible = false
 	
 	if item_list.get_item_count() < item_list.max_columns:
-		for button in [add_button, copy_button, context_button]:
+		for button in [add_button, copy_button]:
 			button.visible = false
 
 

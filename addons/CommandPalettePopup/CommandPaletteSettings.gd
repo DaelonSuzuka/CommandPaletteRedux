@@ -37,8 +37,12 @@ onready var node_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusNo
 onready var filesystem_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusFileSystem/EditButton5
 onready var import_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusImport/EditButton6
 onready var scripteditor_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusScriptEditor/EditButton7
-onready var output_editbutton := $MarginContainer/VBoxContainer/SettingsVB/FocusOutput/EditButton8
-onready var focus_output := $MarginContainer/VBoxContainer/SettingsVB/FocusOutput/LineEdit
+onready var moveup_editbutton := $MarginContainer/VBoxContainer/SettingsVB/MoveNodeUp/EditButton8
+onready var movedown_editbutton := $MarginContainer/VBoxContainer/SettingsVB/MoveNodeDown/EditButton9
+onready var context_editbutton := $MarginContainer/VBoxContainer/SettingsVB/ContextMenu/EditButton10
+onready var moveup_lineedit := $MarginContainer/VBoxContainer/SettingsVB/MoveNodeUp/LineEdit
+onready var movedown_lineedit := $MarginContainer/VBoxContainer/SettingsVB/MoveNodeDown/LineEdit
+onready var context_lineedit := $MarginContainer/VBoxContainer/SettingsVB/ContextMenu/LineEdit
 var currently_edited_shortcut # edit button for setting the key shortcuts
 
 
@@ -51,7 +55,7 @@ func _ready() -> void:
 	shortcut_file_dialog.connect("modal_closed", self, "_on_EnterShortcutPopup_popup_hide") # connection via GUI didn't work
 	
 	for button in [shortcut_edit_button, scenedock_editbutton, inspector_editbutton, node_editbutton, filesystem_editbutton, \
-			import_editbutton, scripteditor_editbutton, output_editbutton]:
+			import_editbutton, scripteditor_editbutton, moveup_editbutton, movedown_editbutton, context_editbutton]:
 		button.connect("pressed", self, "_on_ShotcutEditButton_pressed", [button])
 		button.icon = get_icon("Edit", "EditorIcons")
 
@@ -151,7 +155,10 @@ func load_settings() -> void:
 		focus_filesystemdock.text = config.get_value("Settings", "focus_filesystem", "F")
 		focus_importdock.text = config.get_value("Settings", "focus_import", "I")
 		focus_scripteditor.text = config.get_value("Settings", "focus_scripteditor", "Space")
-		focus_output.text = config.get_value("Settings", "focus_output", "C")
+		
+		moveup_lineedit.text = config.get_value("Settings", "movenodeselectionup", "Up")
+		movedown_lineedit.text = config.get_value("Settings", "movenodeselectiondown", "Down")
+		context_lineedit.text = config.get_value("Settings", "contextmenu", "C")
 
 
 func load_default_settings() -> void:
@@ -179,7 +186,10 @@ func load_default_settings() -> void:
 	focus_filesystemdock.text = "F"
 	focus_importdock.text = "I"
 	focus_scripteditor.text = "Space"
-	focus_output.text = "C"
+	
+	moveup_lineedit.text = "Up"
+	movedown_lineedit.text = "Down"
+	context_lineedit.text = "C"
 
 
 func save_settings() -> void:
@@ -208,5 +218,8 @@ func save_settings() -> void:
 	config.set_value("Settings", "focus_filesystem", focus_filesystemdock.text)
 	config.set_value("Settings", "focus_import", focus_importdock.text)
 	config.set_value("Settings", "focus_scripteditor", focus_scripteditor.text)
-	config.set_value("Settings", "focus_output", focus_output.text)
+	
+	config.set_value("Settings", "movenodeselectionup", moveup_lineedit.text)
+	config.set_value("Settings", "movenodeselectiondown", movedown_lineedit.text)
+	config.set_value("Settings", "contextmenu", context_lineedit.text)
 	config.save("user://command_palette_settings.cfg")

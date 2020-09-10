@@ -71,8 +71,8 @@ __meta__ = {
 }
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PaletteMarginContainer"]
-margin_right = 1004.0
-margin_bottom = 575.0
+margin_right = 1900.0
+margin_bottom = 1055.0
 size_flags_horizontal = 3
 
 [node name="SearchFilter" type="HBoxContainer" parent="PaletteMarginContainer/VBoxContainer"]
@@ -102,13 +102,6 @@ margin_right = 880.0
 margin_bottom = 26.0
 hint_tooltip = "Copies the file path to the clipboard if a file is selected. If the selection is a code snippet, the function gets copied."
 text = "Copy Info"
-icon = SubResource( 2 )
-
-[node name="ContextButton" type="Button" parent="PaletteMarginContainer/VBoxContainer/SearchFilter"]
-margin_left = 884.0
-margin_right = 963.0
-margin_bottom = 26.0
-text = "Context"
 icon = SubResource( 2 )
 
 [node name="AddButton" type="Button" parent="PaletteMarginContainer/VBoxContainer/SearchFilter"]
@@ -204,7 +197,6 @@ clip_text = true
 [connection signal="text_changed" from="PaletteMarginContainer/VBoxContainer/SearchFilter/MarginContainer/Filter" to="." method="_on_Filter_text_changed"]
 [connection signal="text_entered" from="PaletteMarginContainer/VBoxContainer/SearchFilter/MarginContainer/Filter" to="." method="_on_Filter_text_entered"]
 [connection signal="pressed" from="PaletteMarginContainer/VBoxContainer/SearchFilter/CopyButton" to="." method="_on_CopyButton_pressed"]
-[connection signal="pressed" from="PaletteMarginContainer/VBoxContainer/SearchFilter/ContextButton" to="." method="_on_ContextButton_pressed"]
 [connection signal="pressed" from="PaletteMarginContainer/VBoxContainer/SearchFilter/AddButton" to="." method="_on_AddButton_pressed"]
 [connection signal="pressed" from="PaletteMarginContainer/VBoxContainer/SearchFilter/SettingsButton" to="." method="_on_SettingsButton_pressed"]
 [connection signal="item_activated" from="PaletteMarginContainer/VBoxContainer/MarginContainer/TabContainer/ItemList" to="." method="_on_ItemList_item_activated"]
