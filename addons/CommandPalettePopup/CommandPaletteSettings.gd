@@ -42,7 +42,12 @@ onready var movedown_editbutton := $MarginContainer/VBoxContainer/SettingsVB/Mov
 onready var context_editbutton := $MarginContainer/VBoxContainer/SettingsVB/ContextMenu/EditButton10
 onready var moveup_lineedit := $MarginContainer/VBoxContainer/SettingsVB/MoveNodeUp/LineEdit
 onready var movedown_lineedit := $MarginContainer/VBoxContainer/SettingsVB/MoveNodeDown/LineEdit
+onready var prevscene_lineedit := $MarginContainer/VBoxContainer/SettingsVB/PrevScene/LineEdit
+onready var nextscene_lineedit := $MarginContainer/VBoxContainer/SettingsVB/NextScene/LineEdit
+onready var prevscene_editbutton := $MarginContainer/VBoxContainer/SettingsVB/PrevScene/EditButton11
+onready var nextscene_editbutton := $MarginContainer/VBoxContainer/SettingsVB/NextScene/EditButton12
 onready var context_lineedit := $MarginContainer/VBoxContainer/SettingsVB/ContextMenu/LineEdit
+onready var keyword_commands_LineEdit := $MarginContainer/VBoxContainer/SettingsVB/KeywordCommandMenu/LineEdit
 var currently_edited_shortcut # edit button for setting the key shortcuts
 
 
@@ -55,7 +60,7 @@ func _ready() -> void:
 	shortcut_file_dialog.connect("modal_closed", self, "_on_EnterShortcutPopup_popup_hide") # connection via GUI didn't work
 	
 	for button in [shortcut_edit_button, scenedock_editbutton, inspector_editbutton, node_editbutton, filesystem_editbutton, \
-			import_editbutton, scripteditor_editbutton, moveup_editbutton, movedown_editbutton, context_editbutton]:
+			import_editbutton, scripteditor_editbutton, moveup_editbutton, movedown_editbutton, context_editbutton, prevscene_editbutton, nextscene_editbutton]:
 		button.connect("pressed", self, "_on_ShotcutEditButton_pressed", [button])
 		button.icon = get_icon("Edit", "EditorIcons")
 
@@ -159,6 +164,9 @@ func load_settings() -> void:
 		moveup_lineedit.text = config.get_value("Settings", "movenodeselectionup", "Up")
 		movedown_lineedit.text = config.get_value("Settings", "movenodeselectiondown", "Down")
 		context_lineedit.text = config.get_value("Settings", "contextmenu", "C")
+		keyword_commands_LineEdit.text = config.get_value("Settings", "commands", ">")
+		prevscene_lineedit.text = config.get_value("Settings", "prevscene", "Left")
+		nextscene_lineedit.text = config.get_value("Settings", "nextscene", "Right")
 
 
 func load_default_settings() -> void:
@@ -190,6 +198,9 @@ func load_default_settings() -> void:
 	moveup_lineedit.text = "Up"
 	movedown_lineedit.text = "Down"
 	context_lineedit.text = "C"
+	keyword_commands_LineEdit.text = ">"
+	prevscene_lineedit.text = "Left"
+	nextscene_lineedit.text = "Right"
 
 
 func save_settings() -> void:
@@ -222,4 +233,7 @@ func save_settings() -> void:
 	config.set_value("Settings", "movenodeselectionup", moveup_lineedit.text)
 	config.set_value("Settings", "movenodeselectiondown", movedown_lineedit.text)
 	config.set_value("Settings", "contextmenu", context_lineedit.text)
+	config.set_value("Settings", "commands", keyword_commands_LineEdit.text)
+	config.set_value("Settings", "prevscene", prevscene_lineedit.text)
+	config.set_value("Settings", "nextscene", nextscene_lineedit.text)
 	config.save("user://command_palette_settings.cfg")

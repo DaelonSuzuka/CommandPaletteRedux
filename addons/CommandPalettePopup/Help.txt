@@ -20,7 +20,10 @@ While the CommandPalette is open (and no search_string is applied) pressing Cont
 [color=aqua]%s[/color] will move the selection in the SceneTreeDock up.
 [color=aqua]%s[/color] will move the selection in the SceneTreeDock down.
 [color=aqua]%s[/color] will call the context menu for the currently highlighted file (in the script panel, FileSystemDock or SceneTreeDock depending on the active filter). To access the context menu for the SceneTreeDock you need to at least move the node selection with this plugin once. The context menus have their search enabled.
-Example use case: opening the CommandPalette with Ctrl+E (default shortcut) and then while holding Ctrl pressing [color=aqua]%s[/color] is a quick way to focus the SceneTreeDock without your mouse.
+[color=aqua]%s[/color] will move to the previous scene tab.
+[color=aqua]%s[/color] will move to the next scene tab.
+
+If you press a keyboard shortcut while the popup is visible and that shortcut isn't part of the predefined shortcuts above, the CommandPalette will forward the keyboard shortcut to Godot's editor.
 
 Ending the search_string with  X (space + int), will jump to the X-th item in the list.
 Ending the search_string with [color=aqua]"  "[/color] (double space) while the filter for all files, settings or adding a setting is active, will autocomplete (part) of the path.

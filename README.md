@@ -12,6 +12,7 @@
 - Go to line.
 - Go to method.
 - Quickly switch to the last file opened.
+- some useful 'commands' (for now: open new scene, create new script) - feel free to suggest some moew
 - access of https://github.com/fenix-hub/godot-engine.text-editor and https://github.com/need12648430/godot3-todo via command palette. **I have no affiliation with any of those plugins. I only use them personally.**
 
 *Minor stuff*:

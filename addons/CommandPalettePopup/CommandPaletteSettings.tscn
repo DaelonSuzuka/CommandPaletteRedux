@@ -2,7 +2,7 @@
 
 [ext_resource path="res://addons/CommandPalettePopup/CommandPaletteSettings.gd" type="Script" id=1]
 
-[sub_resource type="Image" id=1]
+[sub_resource type="Image" id=3]
 data = {
 "data": PoolByteArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ),
 "format": "LumAlpha8",
@@ -14,7 +14,7 @@ data = {
 [sub_resource type="ImageTexture" id=2]
 flags = 4
 flags = 4
-image = SubResource( 1 )
+image = SubResource( 3 )
 size = Vector2( 16, 16 )
 
 [node name="CommandPaletteSettings" type="WindowDialog"]
@@ -50,7 +50,7 @@ __meta__ = {
 
 [node name="SettingsVB" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
 margin_right = 1820.0
-margin_bottom = 788.0
+margin_bottom = 872.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -64,6 +64,7 @@ text = "Hide script panel (list of open scripts, help pages and methods) on star
 margin_top = 44.0
 margin_right = 1820.0
 margin_bottom = 84.0
+pressed = true
 text = "Include help pages in open script list (of this plugin)"
 
 [node name="AdaptiveHeight" type="CheckButton" parent="MarginContainer/VBoxContainer/SettingsVB"]
@@ -353,10 +354,30 @@ rect_min_size = Vector2( 500, 0 )
 size_flags_horizontal = 10
 text = "td "
 
-[node name="FocusScene" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
+[node name="KeywordCommandMenu" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
 margin_top = 540.0
 margin_right = 1820.0
 margin_bottom = 564.0
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordCommandMenu"]
+margin_top = 5.0
+margin_right = 163.0
+margin_bottom = 19.0
+text = "Keyword command menu"
+valign = 1
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/KeywordCommandMenu"]
+margin_left = 1320.0
+margin_right = 1820.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 500, 0 )
+size_flags_horizontal = 10
+text = ">"
+
+[node name="FocusScene" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
+margin_top = 568.0
+margin_right = 1820.0
+margin_bottom = 592.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusScene"]
 margin_top = 5.0
@@ -372,7 +393,7 @@ margin_bottom = 24.0
 rect_min_size = Vector2( 467, 0 )
 focus_mode = 0
 size_flags_horizontal = 10
-text = "Q"
+text = "S"
 editable = false
 
 [node name="EditButton2" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/FocusScene"]
@@ -383,9 +404,9 @@ rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="FocusInspector" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
-margin_top = 568.0
+margin_top = 596.0
 margin_right = 1820.0
-margin_bottom = 592.0
+margin_bottom = 620.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusInspector"]
 margin_top = 5.0
@@ -412,9 +433,9 @@ rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="FocusNode" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
-margin_top = 596.0
+margin_top = 624.0
 margin_right = 1820.0
-margin_bottom = 620.0
+margin_bottom = 648.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusNode"]
 margin_top = 5.0
@@ -441,9 +462,9 @@ rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="FocusFileSystem" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
-margin_top = 624.0
+margin_top = 652.0
 margin_right = 1820.0
-margin_bottom = 648.0
+margin_bottom = 676.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusFileSystem"]
 margin_top = 5.0
@@ -470,9 +491,9 @@ rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="FocusImport" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
-margin_top = 652.0
+margin_top = 680.0
 margin_right = 1820.0
-margin_bottom = 676.0
+margin_bottom = 704.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusImport"]
 margin_top = 5.0
@@ -499,9 +520,9 @@ rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="FocusScriptEditor" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
-margin_top = 680.0
+margin_top = 708.0
 margin_right = 1820.0
-margin_bottom = 704.0
+margin_bottom = 732.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/FocusScriptEditor"]
 margin_top = 5.0
@@ -528,9 +549,9 @@ rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="MoveNodeUp" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
-margin_top = 708.0
+margin_top = 736.0
 margin_right = 1820.0
-margin_bottom = 732.0
+margin_bottom = 760.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/MoveNodeUp"]
 margin_top = 5.0
@@ -546,7 +567,7 @@ margin_bottom = 24.0
 rect_min_size = Vector2( 467, 0 )
 focus_mode = 0
 size_flags_horizontal = 10
-text = "W"
+text = "Up"
 editable = false
 
 [node name="EditButton8" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/MoveNodeUp"]
@@ -557,9 +578,9 @@ rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
 [node name="MoveNodeDown" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
-margin_top = 736.0
+margin_top = 764.0
 margin_right = 1820.0
-margin_bottom = 760.0
+margin_bottom = 788.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/MoveNodeDown"]
 margin_top = 5.0
@@ -575,7 +596,7 @@ margin_bottom = 24.0
 rect_min_size = Vector2( 467, 0 )
 focus_mode = 0
 size_flags_horizontal = 10
-text = "S"
+text = "Down"
 editable = false
 
 [node name="EditButton9" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/MoveNodeDown"]
@@ -585,10 +606,68 @@ margin_bottom = 24.0
 rect_min_size = Vector2( 29, 0 )
 icon = SubResource( 2 )
 
-[node name="ContextMenu" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
-margin_top = 764.0
+[node name="PrevScene" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
+margin_top = 792.0
 margin_right = 1820.0
-margin_bottom = 788.0
+margin_bottom = 816.0
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/PrevScene"]
+margin_top = 5.0
+margin_right = 187.0
+margin_bottom = 19.0
+text = "Previous scene tab: Control +"
+valign = 1
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/PrevScene"]
+margin_left = 1320.0
+margin_right = 1787.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 467, 0 )
+focus_mode = 0
+size_flags_horizontal = 10
+text = "Left"
+editable = false
+
+[node name="EditButton11" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/PrevScene"]
+margin_left = 1791.0
+margin_right = 1820.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 29, 0 )
+icon = SubResource( 2 )
+
+[node name="NextScene" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
+margin_top = 820.0
+margin_right = 1820.0
+margin_bottom = 844.0
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/NextScene"]
+margin_top = 5.0
+margin_right = 162.0
+margin_bottom = 19.0
+text = "Next scene tab: Control +"
+valign = 1
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/SettingsVB/NextScene"]
+margin_left = 1320.0
+margin_right = 1787.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 467, 0 )
+focus_mode = 0
+size_flags_horizontal = 10
+text = "Right"
+editable = false
+
+[node name="EditButton12" type="Button" parent="MarginContainer/VBoxContainer/SettingsVB/NextScene"]
+margin_left = 1791.0
+margin_right = 1820.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 29, 0 )
+icon = SubResource( 2 )
+
+[node name="ContextMenu" type="HBoxContainer" parent="MarginContainer/VBoxContainer/SettingsVB"]
+margin_top = 848.0
+margin_right = 1820.0
+margin_bottom = 872.0
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/SettingsVB/ContextMenu"]
 margin_top = 5.0
@@ -626,7 +705,7 @@ custom_constants/separation = 25
 [node name="CancelButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsHB"]
 margin_right = 72.0
 margin_bottom = 22.0
-focus_neighbour_top = NodePath("../../SettingsVB/FocusScriptEditor/EditButton7")
+focus_neighbour_top = NodePath("../../SettingsVB/ContextMenu/EditButton10")
 focus_neighbour_right = NodePath("../SaveButton")
 text = "Cancel"
 icon = SubResource( 2 )
@@ -636,7 +715,7 @@ margin_left = 97.0
 margin_right = 157.0
 margin_bottom = 22.0
 rect_min_size = Vector2( 60, 0 )
-focus_neighbour_top = NodePath("../../SettingsVB/FocusScriptEditor/EditButton7")
+focus_neighbour_top = NodePath("../../SettingsVB/ContextMenu/EditButton10")
 size_flags_horizontal = 4
 size_flags_vertical = 8
 text = "Save"
@@ -647,7 +726,7 @@ margin_left = 182.0
 margin_right = 265.0
 margin_bottom = 22.0
 rect_min_size = Vector2( 60, 0 )
-focus_neighbour_top = NodePath("../../SettingsVB/FocusScriptEditor/EditButton7")
+focus_neighbour_top = NodePath("../../SettingsVB/ContextMenu/EditButton10")
 focus_neighbour_right = NodePath("../../SettingsVB/HideScriptPanelOnStart")
 size_flags_horizontal = 4
 size_flags_vertical = 8

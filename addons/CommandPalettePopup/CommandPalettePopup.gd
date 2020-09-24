@@ -32,7 +32,9 @@ var old_dock_tab_was_visible : bool
 var files_are_updating : bool = false
 var recent_files_are_updating : bool  = false
 enum FILTER {ALL_FILES, ALL_SCENES, ALL_SCRIPTS, ALL_OPEN_SCENES, ALL_OPEN_SCRIPTS, SETTINGS, GOTO_LINE, GOTO_METHOD, HELP, \
-		TREE_FOLDER, FILEEDITOR, TODO}
+		TREE_FOLDER, FILEEDITOR, TODO, COMMAND}
+var commands = ["Open new Scene", "Create new script"] # this will appear in the item_list
+enum COMMANDS {OPEN_NEW_SCENE, CREATE_NEW_SCRIPT} # for readability in activate_item(); commands and COMMANDS need to have the same order
 var current_filter : int
 var node_selected := false # node selected via ctrl+up/down
 	
@@ -45,7 +47,6 @@ var SCRIPT_PANEL : VSplitContainer
 var SCRIPT_LIST : ItemList
 # 3rd party plugins
 var FILELIST : ItemList
-var t = 0
 
 
 func _ready() -> void:
@@ -85,9 +86,31 @@ func _ready() -> void:
 
 
 func _unhandled_key_input(event: InputEventKey) -> void:
+	var pressed = true if palette_settings.keyboard_shortcut_LineEdit.text.findn("Tab") != -1 else event.pressed  # can't check the pressed state for Tab
+	
+	# InputEvent for Ctrl+Left/Right won't get registered for the press for some reason (only for the release)
+	# switch to previous Scene Tab
+	if event.as_text() == "Control+" + palette_settings.prevscene_lineedit.text and visible and filter.has_focus() and \
+			(true if palette_settings.prevscene_lineedit.text.findn("Left") != -1 or palette_settings.prevscene_lineedit.text.findn("Right") != -1 else pressed):
+		var container = BASE_CONTROL_VBOX.get_child(1).get_child(1).get_child(1).get_child(0).get_child(0).get_child(0).get_child(0).get_child(0)
+		for node in container.get_children():
+			if node is Tabs:
+				node.current_tab = wrapi(node.current_tab - 1, 0, node.get_tab_count())
+				filter.call_deferred("grab_focus")
+				break
+	
+	# switch to next Scene Tab
+	elif event.as_text() == "Control+" + palette_settings.nextscene_lineedit.text and visible and filter.has_focus() and \
+			(true if palette_settings.nextscene_lineedit.text.findn("Left") != -1 or palette_settings.nextscene_lineedit.text.findn("Right") != -1 else pressed):
+		var container = BASE_CONTROL_VBOX.get_child(1).get_child(1).get_child(1).get_child(0).get_child(0).get_child(0).get_child(0).get_child(0)
+		for node in container.get_children():
+			if node is Tabs:
+				node.current_tab = wrapi(node.current_tab + 1, 0, node.get_tab_count())
+				filter.call_deferred("grab_focus")
+				break
+	
 	# if keyboard shortcut contains tab, you cannot check pressed state
-	var pressed = true if palette_settings.keyboard_shortcut_LineEdit.text.findn("Tab") != -1 else event.pressed 
-	if pressed and visible and filter.has_focus():
+	elif pressed and visible and filter.has_focus():
 		# select next node in scene tree dock
 		if event.as_text() == "Control+" + palette_settings.movedown_lineedit.text:
 			# signal use is mandatory. De/Select methods don't seem to work 
@@ -96,8 +119,11 @@ func _unhandled_key_input(event: InputEventKey) -> void:
 			var tree : Tree = scene_dock.get_child(3).get_child(0)
 			var selected_item : TreeItem = tree.get_selected()
 			if selected_item:
+				var next = selected_item.get_next_visible(true)
+				var sel = INTERFACE.get_selection()
+				sel.clear()
 				tree.emit_signal("multi_selected", selected_item, 0, false)
-				tree.emit_signal("multi_selected", selected_item.get_next_visible(true), 0, true)
+				tree.emit_signal("multi_selected", next, 0, true)
 			else:
 				tree.emit_signal("multi_selected", tree.get_root(), 0, true)
 			node_selected = true
@@ -110,12 +136,16 @@ func _unhandled_key_input(event: InputEventKey) -> void:
 			var tree : Tree = scene_dock.get_child(3).get_child(0)
 			var selected_item : TreeItem = tree.get_selected()
 			if selected_item:
+				var prev = selected_item.get_prev_visible(true)
+				var sel = INTERFACE.get_selection()
+				sel.clear()
 				tree.emit_signal("multi_selected", selected_item, 0, false)
-				tree.emit_signal("multi_selected", selected_item.get_prev_visible(true), 0, true)
+				tree.emit_signal("multi_selected", prev, 0, true)
 			else:
 				tree.emit_signal("multi_selected", tree.get_root().get_prev_visible(true), 0, true)
 			node_selected = true
 		
+		# open context menu
 		elif event.as_text() == "Control+" + palette_settings.context_lineedit.text:
 			if node_selected:
 				_open_context_menu_scenetreedock()
@@ -141,7 +171,15 @@ func _unhandled_key_input(event: InputEventKey) -> void:
 			hide()
 			var file_dock = UTIL.get_dock("FileSystemDock", BASE_CONTROL_VBOX)
 			switch_vis_dock(file_dock)
-			var filter_lineedit : LineEdit = file_dock.get_child(0).get_child(1).get_child(0)
+			var file_split_view : bool
+			var vsplit : VSplitContainer
+			for child in file_dock.get_children():
+				if child is VSplitContainer:
+					vsplit = child
+					file_split_view = vsplit.get_child(1).visible
+					break
+			var filter_lineedit : LineEdit = file_dock.get_child(0).get_child(1).get_child(0) if not file_split_view else \
+					vsplit.get_child(1).get_child(0).get_child(0)
 			filter_lineedit.grab_focus()
 		
 		# focus node dock
@@ -181,6 +219,13 @@ func _unhandled_key_input(event: InputEventKey) -> void:
 		# switch to last file
 		elif event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text:
 			_switch_to_recent_file()
+		
+		# passthrough keyboard shortcuts 
+		else:
+			var keys = event.as_text().split("+")
+			if not keys[keys.size() - 1] in ["Control", "Command", "Shift", "Alt", "Super"]: # last key is an "actual key"
+				hide()
+				Input.parse_input_event(event)
 	
 	# open command palette
 	elif event.as_text() == palette_settings.keyboard_shortcut_LineEdit.text and pressed:
@@ -274,7 +319,7 @@ func _on_AddButton_pressed() -> void:
 
 
 func _on_SettingsButton_pressed() -> void:
-	palette_settings.popup_centered(Vector2(1000, 900))
+	palette_settings.popup_centered(Vector2(1000, 985))
 
 
 func _open_context_menu_scriptpanel() -> void:
@@ -324,7 +369,6 @@ func _open_context_menu_scriptpanel() -> void:
 				break
 
 
-# TODO calculation of item pos for splitview with icons
 func _open_context_menu_filesystemdock() -> void:
 	var selection = item_list.get_selected_items()
 	if selection:
@@ -367,19 +411,24 @@ func _open_context_menu_filesystemdock() -> void:
 		INTERFACE.select_file(path) # also ensures it's visible
 		yield(get_tree().create_timer(.01), "timeout")
 		
-		var pos = Vector2(filesystem_dock.rect_size.x / 2 + 50, 0) 
+		var pos = Vector2.ZERO
 		# file selected in split view
 		if (file_split_view and current_filter != FILTER.TREE_FOLDER) or \
-				(current_filter == FILTER.TREE_FOLDER and not item_list.get_item_icon(selection[0])): # get_item_icon means selected item is a folder
+				(file_split_view and current_filter == FILTER.TREE_FOLDER and not item_list.get_item_icon(selection[0])): # get_item_icon means selected item is a folder
 			# calc pos of selected item to simulate rmb click
 			var selected_name = item_list.get_item_text(selection[0])
-			var idx = 0
-			while selected_name != file_list.get_item_text(idx):
-				idx += 1
-				if idx > 200:
-					push_warning("Command Palette error getting file list")
-					return
-			pos.y = (idx) * (24) + 16 - file_list.get_v_scroll().value
+			var idx = file_list.get_selected_items()[0]
+			var view_button : ToolButton = file_list.get_parent().get_child(0).get_child(1)
+			if view_button.icon == BASE_CONTROL_VBOX.get_icon("FileList", "EditorIcons"):
+				# grid view
+				var columns : int = (file_list.rect_size.x - file_list.get_v_scroll().rect_size.x - 4) / 102 # 102 is approx the complete with of an icon; not working on edge cases
+				var row : int = idx / columns
+				var col : int = idx % columns + 1
+				pos = Vector2(col * 102 + 5, row * 116 + 3)
+			else:
+				# list view
+				pos.x = filesystem_dock.rect_size.x / 2 + 50
+				pos.y = (idx) * (24) + 16 - file_list.get_v_scroll().value
 			# call and set pos of popupmenu
 			file_list.emit_signal("item_rmb_selected", file_list.get_selected_items()[0], pos)
 			for child in filesystem_dock.get_children():
@@ -398,6 +447,7 @@ func _open_context_menu_filesystemdock() -> void:
 				if idx > 200:
 					push_warning("Command Palette error getting file list")
 					return
+			pos.x = filesystem_dock.rect_size.x / 2 + 50
 			pos.y = (idx -1) * 26 + 16 - file_tree.get_scroll().y
 			# call and set pos of popupmenu
 			file_tree.emit_signal("item_rmb_selected", pos)
@@ -459,13 +509,14 @@ func _on_script_context_menu_hide() -> void:
 
 
 func _on_node_and_file_context_menu_hide() -> void:
-	old_dock_tab.get_parent().current_tab = old_dock_tab.get_index()
-	if not old_dock_tab_was_visible:
-		old_dock_tab.get_parent().hide()
-		old_dock_tab.get_parent().get_parent().hide()
-		if old_dock_tab.get_parent().get_parent().get_parent() != BASE_CONTROL_VBOX.get_child(1).get_child(1): 
-			old_dock_tab.get_parent().get_parent().get_parent().hide() 
-	old_dock_tab = null
+	if old_dock_tab:
+		old_dock_tab.get_parent().current_tab = old_dock_tab.get_index()
+		if not old_dock_tab_was_visible:
+			old_dock_tab.get_parent().hide()
+			old_dock_tab.get_parent().get_parent().hide()
+			if old_dock_tab.get_parent().get_parent().get_parent() != BASE_CONTROL_VBOX.get_child(1).get_child(1): 
+				old_dock_tab.get_parent().get_parent().get_parent().hide() 
+		old_dock_tab = null
 
 
 func _on_CommandPalettePopup_popup_hide() -> void:
@@ -560,6 +611,18 @@ func _activate_item(selected_index : int = -1) -> void:
 		else:
 			_open_selection(path)
 	
+	elif current_filter == FILTER.COMMAND:
+		for i in commands.size():
+			if commands[i] == selected_name:
+				match i:
+					COMMANDS.OPEN_NEW_SCENE:
+						var button : Button = BASE_CONTROL_VBOX.get_child(1).get_child(1).get_child(1).get_child(0).get_child(0).get_child(0).get_child(0).get_child(0).get_child(1).get_child(0)
+						button.emit_signal("pressed")
+					
+					COMMANDS.CREATE_NEW_SCRIPT:
+						EDITOR.open_script_create_dialog("Node", "res://new_script")
+				break
+	
 	elif current_filter == FILTER.SETTINGS:
 		var setting_path = Array(selected_name.split("/"))
 		var setting_name : String
@@ -635,7 +698,7 @@ func _open_settings(setting_path : Array, setting_name : String, editor : bool =
 	_inspector_property_editor_grab_focus(setting_name, SETTINGS_INSPECTOR.get_child(0))
 
 
-func _inspector_property_editor_grab_focus(settings_name : String, node : Node = INTERFACE.get_inspector().get_child(0)): # Inpsector dock is default
+func _inspector_property_editor_grab_focus(settings_name : String, node : Node = INTERFACE.get_inspector().get_child(0)):
 	if node is EditorProperty:
 		if node.get_edited_property() == settings_name:
 			# TODO potentially error prone, needs a better way
@@ -733,6 +796,11 @@ func _update_popup_list(just_popupped : bool = false) -> void:
 				if search_string.ends_with(" "):
 					EDITOR.goto_line(clamp(number as int - 1, 0, max_lines))
 	
+	# commands
+	elif search_string.begins_with(palette_settings.keyword_commands_LineEdit.text):
+		current_filter = FILTER.COMMAND
+		_build_item_list(search_string.substr(palette_settings.keyword_commands_LineEdit.text.length()))
+	
 	# file plugin
 	elif search_string.begins_with(palette_settings.keyword_texteditor_plugin_LineEdit.text):
 		_set_file_list()
@@ -801,7 +869,7 @@ func _update_popup_list(just_popupped : bool = false) -> void:
 	quickselect_line = clamp(quickselect_line as int, 0, item_list.get_item_count() / item_list.max_columns - 1)
 	if item_list.get_item_count() >= item_list.max_columns:
 		item_list.select(quickselect_line * item_list.max_columns + (1 if current_filter in [FILTER.ALL_OPEN_SCENES, FILTER.ALL_OPEN_SCRIPTS, FILTER.FILEEDITOR, \
-				FILTER.GOTO_METHOD, FILTER.TREE_FOLDER] else 2))
+				FILTER.GOTO_METHOD, FILTER.TREE_FOLDER, FILTER.COMMAND] else 2))
 		item_list.ensure_current_is_visible()
 	
 	_adapt_list_height()
@@ -818,7 +886,7 @@ func _build_help_page() -> void:
 			palette_settings.keyword_goto_line_LineEdit.text, palette_settings.keyword_goto_method_LineEdit.text, \
 			palette_settings.focus_scenedock.text, palette_settings.focus_inspectordock.text, palette_settings.focus_nodedock.text, \
 			palette_settings.focus_filesystemdock.text, palette_settings.focus_importdock.text, palette_settings.focus_scripteditor.text, palette_settings.moveup_lineedit.text, \
-			palette_settings.movedown_lineedit.text, palette_settings.context_lineedit.text, palette_settings.focus_scenedock.text, \
+			palette_settings.movedown_lineedit.text, palette_settings.context_lineedit.text, palette_settings.prevscene_lineedit.text, palette_settings.nextscene_lineedit.text, \
 			palette_settings.keyword_texteditor_plugin_LineEdit.text, palette_settings.keyword_todo_plugin_LineEdit.text]
 	file.close()
 
@@ -828,6 +896,12 @@ func _build_item_list(search_string : String) -> void:
 	var name_matched_list : Array # FILE NAME matched search_string; this gets listed first
 	var path_matched_list : Array # otherwise there is a match in the file path
 	match current_filter:
+		FILTER.COMMAND:
+			for command in commands:
+				if search_string and not search_string.is_subsequence_ofi(command):
+					continue
+				name_matched_list.push_back(command)
+		
 		FILTER.ALL_FILES:
 			for path in scenes:
 				if search_string and not path.matchn("*" + search_string + "*") and not search_string.is_subsequence_ofi(path):
@@ -963,6 +1037,15 @@ func _build_item_list(search_string : String) -> void:
 			item_list.add_item("Editor :: " if editor_settings.has(name_matched_list[idx]) else "Project :: ", null, false)
 			item_list.set_item_disabled(item_list.get_item_count() - 1, true)
 			item_list.add_item(name_matched_list[idx])
+		elif current_filter == FILTER.COMMAND:
+			item_list.add_item(name_matched_list[idx])
+			match name_matched_list[idx]:
+				"Open new Scene":
+					item_list.set_item_icon(item_list.get_item_count() - 1, get_icon("AddAutotile", "EditorIcons"))
+				
+				"Create new script":
+					item_list.set_item_icon(item_list.get_item_count() - 1, get_icon("ScriptCreate", "EditorIcons"))
+			item_list.add_item("", null, false)
 		else:
 			item_list.add_item(name_matched_list[idx].get_file())
 			if scenes.has(name_matched_list[idx]):
@@ -1115,7 +1198,8 @@ func _setup_buttons() -> void:
 			if current_filter == FILTER.SETTINGS:
 				add_button.visible = true
 				add_button.icon = get_icon("MultiEdit", "EditorIcons")
-		FILTER.GOTO_LINE, FILTER.GOTO_METHOD, FILTER.HELP, FILTER.FILEEDITOR, FILTER.TODO:
+		
+		FILTER.GOTO_LINE, FILTER.GOTO_METHOD, FILTER.HELP, FILTER.FILEEDITOR, FILTER.TODO, FILTER.COMMAND:
 			for button in [add_button, copy_button]:
 				button.visible = false
 	
