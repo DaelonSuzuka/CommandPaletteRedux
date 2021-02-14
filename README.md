@@ -1,4 +1,9 @@
-# A Command Palette for Godot
+# This is no longer being developed
+.
+
+.
+
+.
 
 **See the built-in help page (type "?") on how to use the features.**
 
