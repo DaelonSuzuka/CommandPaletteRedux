@@ -1257,12 +1257,13 @@ func _update_files_dictionary(folder : EditorFileSystemDirectory, reset : bool =
 		elif file_type.find("Scene") != -1:
 			scenes[file_path] = {"Icon" : null}
 			
-			var scene = load(file_path).instance()
-			scenes[file_path].Icon = get_icon(scene.get_class(), "EditorIcons")
-			var attached_script = scene.get_script()
-			if attached_script:
-				attached_script.set_meta("Scene_Path", file_path)
-			scene.free()
+			#! disabled for performance reasons
+			# var scene = load(file_path).instance()
+			# scenes[file_path].Icon = get_icon(scene.get_class(), "EditorIcons")
+			# var attached_script = scene.get_script()
+			# if attached_script:
+			# 	attached_script.set_meta("Scene_Path", file_path)
+			# scene.free()
 		
 		else:
 			other_files[file_path] = {"Icon" : get_icon(file_type, "EditorIcons")}
