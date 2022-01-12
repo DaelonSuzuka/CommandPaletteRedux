@@ -11,10 +11,11 @@
   - put a rate limit on re-index requests
   - prevent re-indexing from happening right when the editor opens
 
-**See the built-in help page (type "?") on how to use the features.**
+## Features:
 
-## Features. Use your keyboad to**:
+See the built-in help page (type "?") on how to use the features.
 
+### Use your keyboard to:
 - Open any file. Filter by type or name. 
 - Focus Godot's dock with keyboard shortcuts and navigate the SceneTreeDock with your keyboard.
 - Edit general Project/Editor settings. Add new Project settings (kinda barebones atm).
