@@ -1,6 +1,6 @@
-**This fork is being actively maintained as of January 2022
+# This fork is being actively maintained as of January 2022
 
-**Roadmap
+## Roadmap
 - update documentation
 - update help screen
 - fix massive performance issues
@@ -13,7 +13,7 @@
 
 **See the built-in help page (type "?") on how to use the features.**
 
-**Features. Use your keyboad to**:
+## Features. Use your keyboad to**:
 
 - Open any file. Filter by type or name. 
 - Focus Godot's dock with keyboard shortcuts and navigate the SceneTreeDock with your keyboard.
@@ -32,29 +32,31 @@
 - Opening a script also opens the scene, which the script is attached to. This gives you autocompletion on the Node(Paths) and their methods.
 - Ending the search_string with "  " (double space) will autocomplete file and settings path.
 
-**Installation**:
+## Installation
 
 Either download it from the official Godot AssetLib (within Godot itself) or download the addons folder from here and move it to the root (res://) of your project. Enable the plugin in the project settings.
 
-**Usage**:
+## Usage
 
 * Install via instructions above
 * On Windows / Linux press "Ctrl+E" to open it, on Mac press "Cmd+P"
 
-**Preview**
+## Preview
 
 ![Preview2](preview2.gif)
 ![Preview](preview.png)
 
 
-**Changelog for 1.6.0**:
+## Changelog
+
+### 1.6.0
 
 - removed ability to focus inspector properties and SceneTree options. Instead added shortcuts to focus Godot's built-in docks with the keyboard.
 - removed context menu button and added it as a keyboard shortcut (by default Ctrl+C when the plugin is visible)
 - updated readme/help pages and preview images accordingly
 - bugfix: wrong sorting of ItemList, context menu no working when there was a scrollbar and other minor stuff
 
-**Changelog for 1.5.1**:
+### 1.5.1
 
 - changed default shortcut to Control+E (for easier one-handed activation)
 - expanded and streamlined the settings page 
