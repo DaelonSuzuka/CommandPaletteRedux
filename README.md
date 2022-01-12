@@ -1,9 +1,15 @@
-# This is no longer being developed
-.
+**This fork is being actively maintained as of January 2022
 
-.
-
-.
+**Roadmap
+- update documentation
+- update help screen
+- fix massive performance issues
+  - currently I've disabled scene instancing because it took >5 seconds in my project
+  - move project indexing to another thread
+  - decouple re-indexing from the editor's file system changed notifications
+  - delay re-index requests for a second or so
+  - put a rate limit on re-index requests
+  - prevent re-indexing from happening right when the editor opens
 
 **See the built-in help page (type "?") on how to use the features.**
 
